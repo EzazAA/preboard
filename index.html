@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBSE Class 10 Pre-Board Planner</title>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --accent: #2563eb;
+            --accent-soft: #dbeafe;
+            --green: #16a34a;
+            --border: #e2e8f0;
+            --radius: 12px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 20px;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        header h1 { font-size: 1.8rem; color: var(--accent); }
+        header p { color: var(--muted); font-size: 0.95rem; margin-top: 4px; }
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        .nav a {
+            text-decoration: none;
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            color: var(--text);
+            transition: 0.2s;
+        }
+        .nav a:hover { background: var(--accent-soft); border-color: var(--accent); }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card .sub {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+        .chapter-block { margin-bottom: 14px; }
+        .chapter-block h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border);
+        }
+        ul.checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+        ul.checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.85rem;
+            padding: 4px 0;
+            color: var(--text);
+        }
+        ul.checklist li input[type="checkbox"] {
+            margin-top: 3px;
+            accent-color: var(--accent);
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        ul.checklist li label { cursor: pointer; }
+        ul.checklist li input:checked + label { text-decoration: line-through; color: var(--muted); }
+
+        /* Progress Tracker */
+        #tracker {
+            margin-top: 32px;
+        }
+        .tracker-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .tracker-controls select,
+        .tracker-controls input {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: var(--card);
+            color: var(--text);
+        }
+        .tracker-controls input { width: 100px; }
+        .tracker-controls button {
+            padding: 8px 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .tracker-controls button:hover { opacity: 0.9; }
+        .tracker-controls button.reset {
+            background: #ef4444;
+        }
+        .chart-wrap {
+            background: #fafbfc;
+            border-radius: var(--radius);
+            padding: 16px;
+            border: 1px solid var(--border);
+        }
+        canvas { width: 100%; max-height: 320px; }
+        .score-list {
+            margin-top: 16px;
+            font-size: 0.85rem;
+        }
+        .score-list table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .score-list th, .score-list td {
+            text-align: left;
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .score-list th { color: var(--muted); font-weight: 600; }
+        .score-list td:last-child { text-align: right; }
+        .empty-note {
+            color: var(--muted);
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 20px;
+        }
+        .badge {
+            display: inline-block;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            margin-left: 6px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+            header h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>📚 CBSE Class 10 Pre-Board Planner</h1>
+        <p>Checklist for English, Hindi, Maths, Science, SST & AI • Progress tracker with local storage</p>
+    </header>
+
+    <nav class="nav">
+        <a href="#english">English</a>
+        <a href="#hindi">Hindi</a>
+        <a href="#maths">Maths</a>
+        <a href="#science">Science</a>
+        <a href="#sst">SST</a>
+        <a href="#ai">AI</a>
+        <a href="#tests">Tests</a>
+        <a href="#tracker">📊 Progress</a>
+    </nav>
+
+    <div class="grid">
+        <!-- ENGLISH -->
+        <section class="card" id="english">
+            <h2>📘 English</h2>
+            <div class="sub">First Flight + Footprints Without Feet</div>
+
+            <div class="chapter-block">
+                <h3>First Flight – Prose</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="eng-p1"><label for="eng-p1">A Letter to God</label></li>
+                    <li><input type="checkbox" id="eng-p2"><label for="eng-p2">Nelson Mandela: Long Walk to Freedom</label></li>
+                    <li><input type="checkbox" id="eng-p3"><label for="eng-p3">Two Stories about Flying</label></li>
+                    <li><input type="checkbox" id="eng-p4"><label for="eng-p4">From the Diary of Anne Frank</label></li>
+                    <li><input type="checkbox" id="eng-p5"><label for="eng-p5">Glimpses of India</label></li>
+                    <li><input type="checkbox" id="eng-p6"><label for="eng-p6">Mijbil the Otter</label></li>
+                    <li><input type="checkbox" id="eng-p7"><label for="eng-p7">Madam Rides the Bus</label></li>
+                    <li><input type="checkbox" id="eng-p8"><label for="eng-p8">The Sermon at Benares</label></li>
+                    <li><input type="checkbox" id="eng-p9"><label for="eng-p9">The Proposal (Play)</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>First Flight – Poems</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="eng-po1"><label for="eng-po1">Dust of Snow</label></li>
+                    <li><input type="checkbox" id="eng-po2"><label for="eng-po2">Fire and Ice</label></li>
+                    <li><input type="checkbox" id="eng-po3"><label for="eng-po3">A Tiger in the Zoo</label></li>
+                    <li><input type="checkbox" id="eng-po4"><label for="eng-po4">How to Tell Wild Animals</label></li>
+                    <li><input type="checkbox" id="eng-po5"><label for="eng-po5">The Ball Poem</label></li>
+                    <li><input type="checkbox" id="eng-po6"><label for="eng-po6">Amanda!</label></li>
+                    <li><input type="checkbox" id="eng-po7"><label for="eng-po7">The Trees</label></li>
+                    <li><input type="checkbox" id="eng-po8"><label for="eng-po8">Fog</label></li>
+                    <li><input type="checkbox" id="eng-po9"><label for="eng-po9">The Tale of Custard the Dragon</label></li>
+                    <li><input type="checkbox" id="eng-po10"><label for="eng-po10">For Anne Gregory</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>Footprints Without Feet (Supplementary)</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="eng-s1"><label for="eng-s1">A Triumph of Surgery</label></li>
+                    <li><input type="checkbox" id="eng-s2"><label for="eng-s2">The Thief's Story</label></li>
+                    <li><input type="checkbox" id="eng-s3"><label for="eng-s3">The Midnight Visitor</label></li>
+                    <li><input type="checkbox" id="eng-s4"><label for="eng-s4">A Question of Trust</label></li>
+                    <li><input type="checkbox" id="eng-s5"><label for="eng-s5">Footprints Without Feet</label></li>
+                    <li><input type="checkbox" id="eng-s6"><label for="eng-s6">The Making of a Scientist</label></li>
+                    <li><input type="checkbox" id="eng-s7"><label for="eng-s7">The Necklace</label></li>
+                    <li><input type="checkbox" id="eng-s8"><label for="eng-s8">Bholi</label></li>
+                    <li><input type="checkbox" id="eng-s9"><label for="eng-s9">The Book That Saved the Earth</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>Writing & Grammar</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="eng-g1"><label for="eng-g1">Formal Letter</label></li>
+                    <li><input type="checkbox" id="eng-g2"><label for="eng-g2">Analytical Paragraph</label></li>
+                    <li><input type="checkbox" id="eng-g3"><label for="eng-g3">Tenses</label></li>
+                    <li><input type="checkbox" id="eng-g4"><label for="eng-g4">Modals</label></li>
+                    <li><input type="checkbox" id="eng-g5"><label for="eng-g5">Subject-Verb Concord</label></li>
+                    <li><input type="checkbox" id="eng-g6"><label for="eng-g6">Determiners</label></li>
+                    <li><input type="checkbox" id="eng-g7"><label for="eng-g7">Reported Speech</label></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- HINDI -->
+        <section class="card" id="hindi">
+            <h2>📙 Hindi (Course A)</h2>
+            <div class="sub">Kshitij Part 2 + Kritika Part 2</div>
+
+            <div class="chapter-block">
+                <h3>क्षितिज भाग-2 (Kshitij)</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="hin-k1"><label for="hin-k1">पद (सूरदास)</label></li>
+                    <li><input type="checkbox" id="hin-k2"><label for="hin-k2">राम-लक्ष्मण-परशुराम संवाद (तुलसीदास)</label></li>
+                    <li><input type="checkbox" id="hin-k3"><label for="hin-k3">साखियाँ और सबद (कबीर)</label></li>
+                    <li><input type="checkbox" id="hin-k4"><label for="hin-k4">यह दंतुरित मुस्कान और फसल (नागार्जुन)</label></li>
+                    <li><input type="checkbox" id="hin-k5"><label for="hin-k5">टोपी शुक्ला (कुँवर नारायण)</label></li>
+                    <li><input type="checkbox" id="hin-k6"><label for="hin-k6">बालगोबिन भगत (हरिशंकर परसाई)</label></li>
+                    <li><input type="checkbox" id="hin-k7"><label for="hin-k7">आत्मत्राण (माखनलाल चतुर्वेदी)</label></li>
+                    <li><input type="checkbox" id="hin-k8"><label for="hin-k8">उत्साह और अट नहीं रही (रामधारी सिंह दिनकर)</label></li>
+                    <li><input type="checkbox" id="hin-k9"><label for="hin-k9">गद्य खंड – लखनवी अंदाज़</label></li>
+                    <li><input type="checkbox" id="hin-k10"><label for="hin-k10">नेताजी का चश्मा</label></li>
+                    <li><input type="checkbox" id="hin-k11"><label for="hin-k11">बालगोबिन भगत</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>कृतिका भाग-2 (Kritika)</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="hin-kr1"><label for="hin-kr1">माता का अँचल</label></li>
+                    <li><input type="checkbox" id="hin-kr2"><label for="hin-kr2">जॉर्ज पंचम की नाक</label></li>
+                    <li><input type="checkbox" id="hin-kr3"><label for="hin-kr3">साना-साना हाथ जोड़ि</label></li>
+                    <li><input type="checkbox" id="hin-kr4"><label for="hin-kr4">एही ठैयाँ झुलनी हेरानी हो रामा!</label></li>
+                    <li><input type="checkbox" id="hin-kr5"><label for="hin-kr5">मैं क्यों लिखता हूँ?</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>व्याकरण और लेखन (Grammar & Writing)</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="hin-g1"><label for="hin-g1">अपठित बोध (Unseen Passages)</label></li>
+                    <li><input type="checkbox" id="hin-g2"><label for="hin-g2">वाक्य भेद</label></li>
+                    <li><input type="checkbox" id="hin-g3"><label for="hin-g3">अलंकार</label></li>
+                    <li><input type="checkbox" id="hin-g4"><label for="hin-g4">पद परिचय</label></li>
+                    <li><input type="checkbox" id="hin-g5"><label for="hin-g5">अनुच्छेद लेखन</label></li>
+                    <li><input type="checkbox" id="hin-g6"><label for="hin-g6">पत्र लेखन</label></li>
+                    <li><input type="checkbox" id="hin-g7"><label for="hin-g7">सूचना लेखन</label></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- MATHS -->
+        <section class="card" id="maths">
+            <h2>📐 Mathematics (Standard)</h2>
+            <div class="sub">7 Units • 80 Marks Theory</div>
+
+            <div class="chapter-block">
+                <h3>Unit I: Number Systems</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="mat-1"><label for="mat-1">Real Numbers – Fundamental Theorem of Arithmetic</label></li>
+                    <li><input type="checkbox" id="mat-2"><label for="mat-2">Irrationality proofs (√2, √3, √5)</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>Unit II: Algebra</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="mat-3"><label for="mat-3">Polynomials – Zeros & Coefficients</label></li>
+                    <li><input type="checkbox" id="mat-4"><label for="mat-4">Pair of Linear Equations – Graphical & Algebraic</label></li>
+                    <li><input type="checkbox" id="mat-5"><label for="mat-5">Quadratic Equations – Formula & Discriminant</label></li>
+                    <li><input type="checkbox" id="mat-6"><label for="mat-6">Arithmetic Progressions – nth term & Sum</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>Unit III: Coordinate Geometry</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="mat-7"><label for="mat-7">Distance Formula</label></li>
+                    <li><input type="checkbox" id="mat-8"><label for="mat-8">Section Formula</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>Unit IV: Geometry</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="mat-9"><label for="mat-9">Triangles – Similarity & BPT</label></li>
+                    <li><input type="checkbox" id="mat-10"><label for="mat-10">Circles – Tangents</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>Unit V: Trigonometry</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="mat-11"><label for="mat-11">Trig Ratios & Identities</label></li>
+                    <li><input type="checkbox" id="mat-12"><label for="mat-12">Heights & Distances</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>Unit VI: Mensuration</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="mat-13"><label for="mat-13">Areas Related to Circles</label></li>
+                    <li><input type="checkbox" id="mat-14"><label for="mat-14">Surface Areas & Volumes</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>Unit VII: Statistics & Probability</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="mat-15"><label for="mat-15">Statistics – Mean, Median, Mode</label></li>
+                    <li><input type="checkbox" id="mat-16"><label for="mat-16">Probability – Classical Definition</label></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- SCIENCE -->
+        <section class="card" id="science">
+            <h2>🔬 Science</h2>
+            <div class="sub">5 Units • Chemistry, Biology, Physics</div>
+
+            <div class="chapter-block">
+                <h3>Chemistry (25 Marks)</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="sci-c1"><label for="sci-c1">Chemical Reactions and Equations</label></li>
+                    <li><input type="checkbox" id="sci-c2"><label for="sci-c2">Acids, Bases and Salts</label></li>
+                    <li><input type="checkbox" id="sci-c3"><label for="sci-c3">Metals and Non-metals</label></li>
+                    <li><input type="checkbox" id="sci-c4"><label for="sci-c4">Carbon and Its Compounds</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>Biology (25 + 5 Marks)</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="sci-b1"><label for="sci-b1">Life Processes</label></li>
+                    <li><input type="checkbox" id="sci-b2"><label for="sci-b2">Control and Coordination</label></li>
+                    <li><input type="checkbox" id="sci-b3"><label for="sci-b3">How Do Organisms Reproduce</label></li>
+                    <li><input type="checkbox" id="sci-b4"><label for="sci-b4">Heredity and Evolution</label></li>
+                    <li><input type="checkbox" id="sci-b5"><label for="sci-b5">Environment (Natural Resources)</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>Physics (12 + 13 Marks)</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="sci-p1"><label for="sci-p1">Light – Reflection and Refraction</label></li>
+                    <li><input type="checkbox" id="sci-p2"><label for="sci-p2">Human Eye and Colourful World</label></li>
+                    <li><input type="checkbox" id="sci-p3"><label for="sci-p3">Electricity</label></li>
+                    <li><input type="checkbox" id="sci-p4"><label for="sci-p4">Magnetic Effects of Electric Current</label></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- SST -->
+        <section class="card" id="sst">
+            <h2>🌍 Social Science</h2>
+            <div class="sub">History • Geography • Pol Science • Economics</div>
+
+            <div class="chapter-block">
+                <h3>History (20 Marks)</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="sst-h1"><label for="sst-h1">The Rise of Nationalism in Europe</label></li>
+                    <li><input type="checkbox" id="sst-h2"><label for="sst-h2">Nationalism in India</label></li>
+                    <li><input type="checkbox" id="sst-h3"><label for="sst-h3">The Making of a Global World</label></li>
+                    <li><input type="checkbox" id="sst-h4"><label for="sst-h4">The Age of Industrialisation</label></li>
+                    <li><input type="checkbox" id="sst-h5"><label for="sst-h5">Print Culture and the Modern World</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>Geography (20 Marks)</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="sst-g1"><label for="sst-g1">Resources and Development</label></li>
+                    <li><input type="checkbox" id="sst-g2"><label for="sst-g2">Forest and Wildlife Resources</label></li>
+                    <li><input type="checkbox" id="sst-g3"><label for="sst-g3">Water Resources</label></li>
+                    <li><input type="checkbox" id="sst-g4"><label for="sst-g4">Agriculture</label></li>
+                    <li><input type="checkbox" id="sst-g5"><label for="sst-g5">Minerals and Energy Resources</label></li>
+                    <li><input type="checkbox" id="sst-g6"><label for="sst-g6">Manufacturing Industries</label></li>
+                    <li><input type="checkbox" id="sst-g7"><label for="sst-g7">Life Lines of National Economy</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>Political Science (20 Marks)</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="sst-p1"><label for="sst-p1">Power-sharing</label></li>
+                    <li><input type="checkbox" id="sst-p2"><label for="sst-p2">Federalism</label></li>
+                    <li><input type="checkbox" id="sst-p3"><label for="sst-p3">Gender, Religion and Caste</label></li>
+                    <li><input type="checkbox" id="sst-p4"><label for="sst-p4">Political Parties</label></li>
+                    <li><input type="checkbox" id="sst-p5"><label for="sst-p5">Outcomes of Democracy</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>Economics (20 Marks)</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="sst-e1"><label for="sst-e1">Development</label></li>
+                    <li><input type="checkbox" id="sst-e2"><label for="sst-e2">Sectors of Indian Economy</label></li>
+                    <li><input type="checkbox" id="sst-e3"><label for="sst-e3">Money and Credit</label></li>
+                    <li><input type="checkbox" id="sst-e4"><label for="sst-e4">Globalisation and Indian Economy</label></li>
+                    <li><input type="checkbox" id="sst-e5"><label for="sst-e5">Consumer Rights</label></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- AI -->
+        <section class="card" id="ai">
+            <h2>🤖 Artificial Intelligence (417)</h2>
+            <div class="sub">Employability + Subject Specific Skills</div>
+
+            <div class="chapter-block">
+                <h3>Part A: Employability Skills</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="ai-e1"><label for="ai-e1">Communication Skills – II</label></li>
+                    <li><input type="checkbox" id="ai-e2"><label for="ai-e2">Self-Management Skills – II</label></li>
+                    <li><input type="checkbox" id="ai-e3"><label for="ai-e3">ICT Skills – II</label></li>
+                    <li><input type="checkbox" id="ai-e4"><label for="ai-e4">Entrepreneurial Skills – II</label></li>
+                    <li><input type="checkbox" id="ai-e5"><label for="ai-e5">Green Skills – II</label></li>
+                </ul>
+            </div>
+
+            <div class="chapter-block">
+                <h3>Part B: Subject Specific Skills</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="ai-s1"><label for="ai-s1">Unit 1: Revisiting AI Project Cycle & Ethics</label></li>
+                    <li><input type="checkbox" id="ai-s2"><label for="ai-s2">Unit 2: Advanced Concepts of Modeling in AI</label></li>
+                    <li><input type="checkbox" id="ai-s3"><label for="ai-s3">Unit 3: Evaluating Models</label></li>
+                    <li><input type="checkbox" id="ai-s4"><label for="ai-s4">Unit 4: Statistical Data (Practical)</label></li>
+                    <li><input type="checkbox" id="ai-s5"><label for="ai-s5">Unit 5: Computer Vision</label></li>
+                    <li><input type="checkbox" id="ai-s6"><label for="ai-s6">Unit 6: Natural Language Processing</label></li>
+                    <li><input type="checkbox" id="ai-s7"><label for="ai-s7">Unit 7: Advance Python (Practical)</label></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- TEST CHECKLIST -->
+        <section class="card" id="tests">
+            <h2>📝 Test Checklist</h2>
+            <div class="sub">Use this to track practice tests & school exams</div>
+            <div class="chapter-block">
+                <h3>Full-Length Sample Papers</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="test-1"><label for="test-1">English – Sample Paper 1</label></li>
+                    <li><input type="checkbox" id="test-2"><label for="test-2">English – Sample Paper 2</label></li>
+                    <li><input type="checkbox" id="test-3"><label for="test-3">Hindi – Sample Paper 1</label></li>
+                    <li><input type="checkbox" id="test-4"><label for="test-4">Hindi – Sample Paper 2</label></li>
+                    <li><input type="checkbox" id="test-5"><label for="test-5">Maths – Sample Paper 1</label></li>
+                    <li><input type="checkbox" id="test-6"><label for="test-6">Maths – Sample Paper 2</label></li>
+                    <li><input type="checkbox" id="test-7"><label for="test-7">Science – Sample Paper 1</label></li>
+                    <li><input type="checkbox" id="test-8"><label for="test-8">Science – Sample Paper 2</label></li>
+                    <li><input type="checkbox" id="test-9"><label for="test-9">SST – Sample Paper 1</label></li>
+                    <li><input type="checkbox" id="test-10"><label for="test-10">SST – Sample Paper 2</label></li>
+                    <li><input type="checkbox" id="test-11"><label for="test-11">AI – Sample Paper 1</label></li>
+                    <li><input type="checkbox" id="test-12"><label for="test-12">AI – Sample Paper 2</label></li>
+                </ul>
+            </div>
+            <div class="chapter-block">
+                <h3>Chapter-Wise Tests</h3>
+                <ul class="checklist">
+                    <li><input type="checkbox" id="test-c1"><label for="test-c1">Maths – Trigonometry test</label></li>
+                    <li><input type="checkbox" id="test-c2"><label for="test-c2">Maths – Algebra test</label></li>
+                    <li><input type="checkbox" id="test-c3"><label for="test-c3">Science – Chemical Reactions test</label></li>
+                    <li><input type="checkbox" id="test-c4"><label for="test-c4">Science – Electricity test</label></li>
+                    <li><input type="checkbox" id="test-c5"><label for="test-c5">SST – Nationalism in India test</label></li>
+                    <li><input type="checkbox" id="test-c6"><label for="test-c6">English – Literature test</label></li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <!-- PROGRESS TRACKER -->
+    <section class="card" id="tracker">
+        <h2>📊 Progress Tracker</h2>
+        <div class="sub">Enter your test marks – they save automatically in this browser and the graph updates instantly.</div>
+
+        <div class="tracker-controls">
+            <select id="subjectSelect">
+                <option value="English">English</option>
+                <option value="Hindi">Hindi</option>
+                <option value="Maths">Maths</option>
+                <option value="Science">Science</option>
+                <option value="SST">SST</option>
+                <option value="AI">AI</option>
+            </select>
+            <input type="text" id="testName" placeholder="Test name (e.g., Pre-Board 1)" maxlength="30">
+            <input type="number" id="scoreInput" placeholder="Score %" min="0" max="100">
+            <button onclick="addScore()">Add Score</button>
+            <button class="reset" onclick="resetScores()">Reset All</button>
+        </div>
+
+        <div class="chart-wrap">
+            <canvas id="scoreChart" width="800" height="300"></canvas>
+        </div>
+
+        <div class="score-list" id="scoreList">
+            <!-- Table will be injected here -->
+        </div>
+    </section>
+
+    <footer>
+        Syllabus aligned with CBSE 2025-26 • Data is stored only in your browser using localStorage.
+    </footer>
+</div>
+
+<script>
+    // ---------- LOCAL STORAGE KEYS ----------
+    const SCORE_KEY = 'cbse10_preboard_scores';
+
+    // ---------- CHECKBOX PERSISTENCE ----------
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(cb => {
+        const saved = localStorage.getItem('cbse10_check_' + cb.id);
+        if (saved === 'true') cb.checked = true;
+        cb.addEventListener('change', () => {
+            localStorage.setItem('cbse10_check_' + cb.id, cb.checked);
+        });
+    });
+
+    // ---------- SCORE DATA ----------
+    let scores = JSON.parse(localStorage.getItem(SCORE_KEY)) || [];
+
+    // ---------- ADD SCORE ----------
+    function addScore() {
+        const subject = document.getElementById('subjectSelect').value;
+        const testName = document.getElementById('testName').value.trim() || 'Test';
+        const score = parseFloat(document.getElementById('scoreInput').value);
+
+        if (isNaN(score) || score < 0 || score > 100) {
+            alert('Please enter a valid score between 0 and 100.');
+            return;
+        }
+
+        scores.push({
+            subject,
+            testName,
+            score,
+            timestamp: new Date().toISOString()
+        });
+
+        localStorage.setItem(SCORE_KEY, JSON.stringify(scores));
+        document.getElementById('testName').value = '';
+        document.getElementById('scoreInput').value = '';
+        renderAll();
+    }
+
+    // ---------- RESET SCORES ----------
+    function resetScores() {
+        if (!confirm('Delete all saved scores? This cannot be undone.')) return;
+        scores = [];
+        localStorage.removeItem(SCORE_KEY);
+        renderAll();
+    }
+
+    // ---------- RENDER EVERYTHING ----------
+    function renderAll() {
+        renderChart();
+        renderTable();
+    }
+
+    // ---------- RENDER CHART ----------
+    function renderChart() {
+        const canvas = document.getElementById('scoreChart');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width;
+        const H = canvas.height;
+
+        ctx.clearRect(0, 0, W, H);
+
+        if (scores.length === 0) {
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '16px system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('No scores yet. Add a test score above to see the graph.', W / 2, H / 2);
+            return;
+        }
+
+        const padding = { top: 30, right: 30, bottom: 50, left: 50 };
+        const chartW = W - padding.left - padding.right;
+        const chartH = H - padding.top - padding.bottom;
+
+        // Y-axis 0 to 100
+        const yMin = 0, yMax = 100;
+
+        // Group by subject
+        const subjects = ['English', 'Hindi', 'Maths', 'Science', 'SST', 'AI'];
+        const colors = {
+            English: '#2563eb',
+            Hindi: '#dc2626',
+            Maths: '#16a34a',
+            Science: '#9333ea',
+            SST: '#ea580c',
+            AI: '#0891b2'
+        };
+
+        // X-axis positions
+        const maxPerSubject = Math.max(...subjects.map(s => scores.filter(sc => sc.subject === s).length), 1);
+        const totalSlots = subjects.length * maxPerSubject;
+
+        // Draw grid
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 5; i++) {
+            const y = padding.top + (chartH * i / 5);
+            ctx.beginPath();
+            ctx.moveTo(padding.left, y);
+            ctx.lineTo(W - padding.right, y);
+            ctx.stroke();
+            ctx.fillStyle = '#64748b';
+            ctx.font = '11px system-ui';
+            ctx.textAlign = 'right';
+            ctx.fillText(String(100 - i * 20), padding.left - 6, y + 4);
+        }
+
+        // Draw lines per subject
+        subjects.forEach(sub => {
+            const subScores = scores.filter(sc => sc.subject === sub);
+            if (subScores.length === 0) return;
+
+            const pts = subScores.map((sc, i) => {
+                const x = padding.left + (chartW / (totalSlots - 1 || 1)) * (subjects.indexOf(sub) * maxPerSubject + i);
+                const y = padding.top + chartH * (1 - (sc.score - yMin) / (yMax - yMin));
+                return { x, y, score: sc.score, testName: sc.testName };
+            });
+
+            // Line
+            ctx.strokeStyle = colors[sub] || '#2563eb';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            pts.forEach((p, i) => {
+                if (i === 0) ctx.moveTo(p.x, p.y);
+                else ctx.lineTo(p.x, p.y);
+            });
+            ctx.stroke();
+
+            // Points
+            pts.forEach(p => {
+                ctx.fillStyle = colors[sub] || '#2563eb';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#1e293b';
+                ctx.font = '10px system-ui';
+                ctx.textAlign = 'center';
+                ctx.fillText(p.score + '%', p.x, p.y - 10);
+            });
+        });
+
+        // X-axis labels (subject names)
+        ctx.fillStyle = '#64748b';
+        ctx.font = '11px system-ui';
+        ctx.textAlign = 'center';
+        subjects.forEach((sub, i) => {
+            const x = padding.left + (chartW / (totalSlots - 1 || 1)) * (i * maxPerSubject + (maxPerSubject - 1) / 2);
+            ctx.fillText(sub, x, H - 15);
+        });
+
+        // Legend
+        let lx = padding.left;
+        const ly = H - 5;
+        ctx.font = '10px system-ui';
+        subjects.forEach(sub => {
+            ctx.fillStyle = colors[sub];
+            ctx.fillRect(lx, ly - 8, 8, 8);
+            ctx.fillStyle = '#64748b';
+            ctx.textAlign = 'left';
+            ctx.fillText(sub, lx + 12, ly);
+            lx += 70;
+        });
+    }
+
+    // ---------- RENDER TABLE ----------
+    function renderTable() {
+        const container = document.getElementById('scoreList');
+        if (scores.length === 0) {
+            container.innerHTML = '<div class="empty-note">No scores saved yet. Add your first test score above.</div>';
+            return;
+        }
+
+        // Sort by timestamp (newest first)
+        const sorted = [...scores].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        let html = '<table><thead><tr><th>Subject</th><th>Test</th><th>Score</th><th>Date</th></tr></thead><tbody>';
+        sorted.forEach(sc => {
+            const d = new Date(sc.timestamp);
+            const dateStr = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+            html += `<tr>
+                <td><span class="badge">${sc.subject}</span></td>
+                <td>${escapeHtml(sc.testName)}</td>
+                <td><strong>${sc.score}%</strong></td>
+                <td>${dateStr}</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ---------- INITIAL RENDER ----------
+    renderAll();
+
+    // Redraw chart if window resizes (canvas is fixed width, but keep it crisp)
+    window.addEventListener('resize', () => {
+        const canvas = document.getElementById('scoreChart');
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = 800;
+        canvas.height = 300;
+        renderChart();
+    });
+</script>
+</body>
+</html>
