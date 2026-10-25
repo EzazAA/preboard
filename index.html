@@ -1,785 +1,1326 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CBSE Class 10 Pre-Board Planner</title>
-    <style>
-        :root {
-            --bg: #f4f7fb;
-            --card: #ffffff;
-            --text: #1e293b;
-            --muted: #64748b;
-            --accent: #2563eb;
-            --accent-soft: #dbeafe;
-            --green: #16a34a;
-            --border: #e2e8f0;
-            --radius: 12px;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.5;
-            padding: 20px;
-        }
-        .container { max-width: 1100px; margin: 0 auto; }
-        header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        header h1 { font-size: 1.8rem; color: var(--accent); }
-        header p { color: var(--muted); font-size: 0.95rem; margin-top: 4px; }
-        .nav {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            margin-bottom: 24px;
-        }
-        .nav a {
-            text-decoration: none;
-            background: var(--card);
-            border: 1px solid var(--border);
-            padding: 6px 14px;
-            border-radius: 999px;
-            font-size: 0.85rem;
-            color: var(--text);
-            transition: 0.2s;
-        }
-        .nav a:hover { background: var(--accent-soft); border-color: var(--accent); }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-        }
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px;
-        }
-        .card h2 {
-            font-size: 1.2rem;
-            margin-bottom: 4px;
-            color: var(--accent);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .card .sub {
-            font-size: 0.8rem;
-            color: var(--muted);
-            margin-bottom: 12px;
-        }
-        .chapter-block { margin-bottom: 14px; }
-        .chapter-block h3 {
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-            padding-bottom: 4px;
-            border-bottom: 1px solid var(--border);
-        }
-        ul.checklist {
-            list-style: none;
-            padding-left: 0;
-        }
-        ul.checklist li {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            font-size: 0.85rem;
-            padding: 4px 0;
-            color: var(--text);
-        }
-        ul.checklist li input[type="checkbox"] {
-            margin-top: 3px;
-            accent-color: var(--accent);
-            width: 16px;
-            height: 16px;
-            flex-shrink: 0;
-            cursor: pointer;
-        }
-        ul.checklist li label { cursor: pointer; }
-        ul.checklist li input:checked + label { text-decoration: line-through; color: var(--muted); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBSE Class X · Pre-Board Planner</title>
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --paper:#f7f3ea;
+  --card:#fffefb;
+  --card-alt:#fbf8f0;
+  --ink:#1c2430;
+  --ink-soft:#4a5462;
+  --muted:#8a8577;
+  --navy:#16324f;
+  --navy-2:#1e4a72;
+  --burgundy:#7b2d26;
+  --gold:#b8892b;
+  --green:#2f6b46;
+  --line:#e4ddcc;
+  --line-strong:#cfc6b0;
+  --radius:8px;
+  --shadow:0 1px 2px rgba(28,36,48,.05), 0 8px 22px -16px rgba(28,36,48,.35);
+  --serif:Georgia,"Times New Roman",Times,serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:15px;line-height:1.55;
+  background-image:radial-gradient(circle at 15% -5%, #fffdf7 0%, transparent 55%);
+  background-attachment:fixed;
+}
+[hidden]{display:none !important}
+a{color:inherit}
 
-        /* Progress Tracker */
-        #tracker {
-            margin-top: 32px;
-        }
-        .tracker-controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-        .tracker-controls select,
-        .tracker-controls input {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            background: var(--card);
-            color: var(--text);
-        }
-        .tracker-controls input { width: 100px; }
-        .tracker-controls button {
-            padding: 8px 16px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        .tracker-controls button:hover { opacity: 0.9; }
-        .tracker-controls button.reset {
-            background: #ef4444;
-        }
-        .chart-wrap {
-            background: #fafbfc;
-            border-radius: var(--radius);
-            padding: 16px;
-            border: 1px solid var(--border);
-        }
-        canvas { width: 100%; max-height: 320px; }
-        .score-list {
-            margin-top: 16px;
-            font-size: 0.85rem;
-        }
-        .score-list table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .score-list th, .score-list td {
-            text-align: left;
-            padding: 6px 8px;
-            border-bottom: 1px solid var(--border);
-        }
-        .score-list th { color: var(--muted); font-weight: 600; }
-        .score-list td:last-child { text-align: right; }
-        .empty-note {
-            color: var(--muted);
-            font-size: 0.85rem;
-            text-align: center;
-            padding: 20px;
-        }
-        .badge {
-            display: inline-block;
-            background: var(--accent-soft);
-            color: var(--accent);
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 999px;
-            margin-left: 6px;
-        }
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 0.8rem;
-            color: var(--muted);
-        }
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: 1fr; }
-            header h1 { font-size: 1.4rem; }
-        }
-    </style>
+/* ============ HEADER ============ */
+.site-header{
+  background:linear-gradient(180deg,#173451,#112739);
+  color:#f3ecdc;border-bottom:3px solid var(--gold);
+  position:sticky;top:0;z-index:60;
+  box-shadow:0 2px 14px rgba(0,0,0,.18);
+}
+.header-inner{
+  max-width:1260px;margin:0 auto;padding:12px 24px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+}
+.crest{
+  width:46px;height:46px;flex:none;border:2px solid var(--gold);border-radius:6px;
+  display:grid;place-items:center;font-family:var(--serif);font-size:1.05rem;
+  color:var(--gold);letter-spacing:.5px;line-height:1;
+}
+.brand h1{
+  font-family:var(--serif);font-size:1.16rem;font-weight:600;
+  margin:0;letter-spacing:.2px;
+}
+.brand .sub{margin:2px 0 0;font-size:.74rem;color:#c6bda6;letter-spacing:.4px}
+.header-progress{margin-left:auto;min-width:230px;flex:1 1 230px;max-width:340px}
+.hp-label{display:flex;justify-content:space-between;font-size:.72rem;color:#c6bda6;letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}
+.hp-label b{color:#f0e6cc;font-weight:600}
+.hp-bar{height:6px;background:rgba(255,255,255,.14);border-radius:99px;overflow:hidden}
+.hp-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),#e3c072);border-radius:99px;transition:width .45s ease}
+
+/* ============ LAYOUT ============ */
+.layout{
+  max-width:1260px;margin:0 auto;padding:26px 24px 60px;
+  display:grid;grid-template-columns:236px minmax(0,1fr);gap:30px;align-items:start;
+}
+
+/* ============ SIDEBAR ============ */
+.sidebar{position:sticky;top:92px;align-self:start}
+.side-title{
+  font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 8px 4px;font-weight:700;
+}
+.nav-item{
+  display:block;padding:7px 10px;border-radius:6px;text-decoration:none;
+  color:var(--ink-soft);font-size:.85rem;border-left:3px solid transparent;
+  transition:background .15s,color .15s,border-color .15s;
+}
+.nav-item:hover{background:#efe9da;color:var(--navy)}
+.nav-item.active{background:#fffdf6;border-left-color:var(--gold);color:var(--navy);font-weight:600;box-shadow:var(--shadow)}
+.nav-bar{height:3px;background:#e6dfcf;border-radius:2px;margin-top:5px;overflow:hidden}
+.nav-bar i{display:block;height:100%;width:0;background:var(--navy);transition:width .4s ease}
+.nav-item.active .nav-bar i{background:var(--gold)}
+.side-divider{height:1px;background:var(--line-strong);margin:12px 6px}
+.side-tools{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.side-tools button{
+  font:inherit;font-size:.78rem;text-align:left;padding:7px 10px;
+  background:transparent;border:1px solid var(--line-strong);border-radius:6px;
+  color:var(--ink-soft);cursor:pointer;transition:.15s;
+}
+.side-tools button:hover{background:#fffdf6;border-color:var(--gold);color:var(--navy)}
+
+/* ============ OVERVIEW STATS ============ */
+.overview{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:26px}
+.stat{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);opacity:.8}
+.stat-label{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.stat-value{font-family:var(--serif);font-size:1.5rem;color:var(--navy);margin-top:4px;line-height:1.15}
+.stat-sub{font-size:.72rem;color:var(--muted);margin-top:2px}
+.stat input[type=date]{
+  font:inherit;font-size:.78rem;border:1px solid var(--line-strong);border-radius:5px;
+  padding:2px 6px;background:#fff;color:var(--ink-soft);margin-top:4px;width:100%;max-width:150px;
+}
+
+/* ============ PANELS ============ */
+.panel{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px 22px;margin-bottom:22px;box-shadow:var(--shadow);scroll-margin-top:96px;
+}
+.panel-head{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.panel-head h2{
+  font-family:var(--serif);font-size:1.22rem;font-weight:600;color:var(--navy);
+  margin:0;letter-spacing:.2px;
+}
+.panel-head .tag{margin:2px 0 0;font-size:.76rem;color:var(--muted);letter-spacing:.3px}
+.panel-head::after{content:"";flex-basis:100%;height:2px;background:linear-gradient(90deg,var(--gold),transparent 55%);margin-top:10px;order:3}
+.panel-progress{margin-left:auto;min-width:170px;text-align:right}
+.panel-progress .pct{font-family:var(--serif);font-size:1.05rem;color:var(--navy);font-weight:600}
+.panel-progress .of{font-size:.72rem;color:var(--muted);margin-left:4px}
+.bar{height:5px;background:#ece5d6;border-radius:99px;overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;width:0;background:var(--navy);border-radius:99px;transition:width .4s ease}
+
+/* ============ CHAPTER GROUPS ============ */
+details.group{
+  border:1px solid var(--line);border-radius:6px;margin-bottom:10px;
+  background:var(--card);overflow:hidden;
+}
+details.group[open]{box-shadow:0 1px 0 rgba(0,0,0,.02)}
+summary{
+  list-style:none;cursor:pointer;display:flex;align-items:center;gap:9px;
+  padding:9px 14px;background:var(--card-alt);border-bottom:1px solid var(--line);
+  font-weight:600;font-size:.9rem;color:var(--ink);user-select:none;
+}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸";color:var(--gold);font-size:.78rem;transition:transform .15s}
+details[open] summary::before{content:"▾"}
+summary:hover{background:#f6f1e4}
+summary .count{
+  margin-left:auto;font-size:.74rem;font-weight:600;color:var(--muted);
+  background:#f1ebdc;border-radius:99px;padding:1px 9px;font-variant-numeric:tabular-nums;
+}
+details[open] summary{border-bottom-color:var(--line)}
+
+/* ============ CHECK LISTS ============ */
+ul.checks{list-style:none;margin:0;padding:6px 4px}
+ul.checks li{margin:0}
+.check{
+  display:flex;gap:10px;align-items:flex-start;padding:6px 10px;
+  border-radius:4px;cursor:pointer;font-size:.885rem;transition:background .12s;
+}
+.check:hover{background:#faf6ea}
+.check input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.check .box{
+  width:17px;height:17px;flex:none;margin-top:2px;border:1.5px solid var(--line-strong);
+  border-radius:3px;background:#fff;position:relative;transition:.15s;
+}
+.check input:checked + .box{background:var(--navy);border-color:var(--navy)}
+.check input:checked + .box::after{
+  content:"";position:absolute;left:5px;top:1px;width:4px;height:9px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);
+}
+.check input:focus-visible + .box{outline:2px solid var(--gold);outline-offset:2px}
+.check input:checked ~ .txt{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line-strong)}
+.check .txt{flex:1;transition:color .15s}
+
+/* ============ TRACKER ============ */
+.tracker-form{
+  display:flex;flex-wrap:wrap;gap:9px;align-items:center;
+  padding:14px;background:var(--card-alt);border:1px solid var(--line);
+  border-radius:6px;margin-bottom:18px;
+}
+.tracker-form label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;display:block;margin-bottom:3px}
+.field{display:flex;flex-direction:column;gap:0}
+.tracker-form select,.tracker-form input{
+  font:inherit;font-size:.88rem;padding:7px 10px;border:1px solid var(--line-strong);
+  border-radius:5px;background:#fff;color:var(--ink);min-width:0;
+}
+.tracker-form select:focus,.tracker-form input:focus{outline:2px solid rgba(184,137,43,.45);outline-offset:1px;border-color:var(--gold)}
+.btn{
+  font:inherit;font-size:.85rem;font-weight:600;padding:8px 18px;border-radius:5px;
+  border:1px solid transparent;cursor:pointer;transition:.15s;align-self:flex-end;
+}
+.btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-primary:hover{background:var(--navy-2);border-color:var(--navy-2)}
+.btn-ghost{background:#fff;border-color:var(--line-strong);color:var(--ink-soft)}
+.btn-ghost:hover{border-color:var(--gold);color:var(--navy)}
+.btn-danger{background:#fff;border-color:#e3c4c0;color:var(--burgundy)}
+.btn-danger:hover{background:#fdf3f2;border-color:var(--burgundy)}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.legend-btn{
+  display:inline-flex;align-items:center;gap:7px;font:inherit;font-size:.79rem;
+  padding:5px 12px;border-radius:99px;border:1px solid var(--line-strong);
+  background:#fff;cursor:pointer;color:var(--ink-soft);transition:.15s;
+}
+.legend-btn i{width:9px;height:9px;border-radius:2px;flex:none;transition:opacity .15s}
+.legend-btn.off{opacity:.42}
+.legend-btn.off i{opacity:.35}
+.legend-btn:hover{border-color:var(--gold)}
+
+/* Chart */
+.chart-wrap{
+  position:relative;background:#fff;border:1px solid var(--line);
+  border-radius:6px;padding:10px 6px 4px;
+}
+#chart{display:block;width:100%;height:340px}
+.tooltip{
+  position:absolute;pointer-events:none;background:#16324f;color:#f4eddd;
+  font-size:.75rem;line-height:1.4;padding:7px 10px;border-radius:5px;
+  box-shadow:0 6px 18px -8px rgba(0,0,0,.45);opacity:0;transition:opacity .12s;
+  white-space:nowrap;z-index:5;border:1px solid rgba(255,255,255,.12);
+}
+.tooltip.show{opacity:1}
+.tooltip b{color:#e8cd8d;font-weight:600}
+
+/* Summary cards */
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;margin-top:20px}
+.sum-card{border:1px solid var(--line);border-radius:6px;padding:11px 13px;background:var(--card-alt)}
+.sum-card .sname{font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;display:flex;align-items:center;gap:6px}
+.sum-card .sname i{width:8px;height:8px;border-radius:2px}
+.sum-card .savg{font-family:var(--serif);font-size:1.28rem;color:var(--navy);margin-top:3px}
+.sum-card .smeta{font-size:.71rem;color:var(--muted)}
+.sum-card .bar{margin-top:7px}
+
+/* Table */
+.table-wrap{margin-top:22px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+thead th{
+  text-align:left;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:700;padding:8px 10px;border-bottom:2px solid var(--line-strong);
+}
+tbody td{padding:9px 10px;border-bottom:1px solid var(--line)}
+tbody tr:hover{background:#faf6ea}
+.pill{
+  display:inline-flex;align-items:center;gap:6px;font-size:.74rem;font-weight:600;
+  padding:2px 9px;border-radius:99px;background:#f1ebdc;color:var(--ink-soft);
+}
+.pill i{width:7px;height:7px;border-radius:50%}
+.score-cell{font-family:var(--serif);font-size:1rem;color:var(--navy);font-weight:600}
+.del-btn{
+  background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;
+  padding:2px 6px;border-radius:4px;line-height:1;transition:.15s;
+}
+.del-btn:hover{color:var(--burgundy);background:#fdf3f2}
+.empty-note{
+  text-align:center;color:var(--muted);font-size:.85rem;padding:26px 10px;
+  border:1px dashed var(--line-strong);border-radius:6px;background:var(--card-alt);
+}
+.hint{font-size:.75rem;color:var(--muted);margin-top:10px}
+footer{
+  max-width:1260px;margin:0 auto;padding:0 24px 40px;text-align:center;
+  font-size:.76rem;color:var(--muted);
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr;gap:20px;padding:18px 16px 50px}
+  .sidebar{
+    position:static;display:flex;flex-direction:row;gap:6px;overflow-x:auto;
+    padding-bottom:6px;margin:0 -4px;scrollbar-width:thin;
+  }
+  .side-title,.side-divider{display:none}
+  .nav-item{flex:none;white-space:nowrap;border-left:none;border-bottom:3px solid transparent;padding:7px 12px}
+  .nav-item.active{border-left-color:transparent;border-bottom-color:var(--gold)}
+  .nav-bar{display:none}
+  .side-tools{flex-direction:row;margin:0;flex:none}
+  .side-tools button{white-space:nowrap}
+  .panel{padding:16px}
+  .header-progress{max-width:none;flex-basis:100%;margin-left:0}
+  #chart{height:280px}
+}
+@media (max-width:520px){
+  .brand h1{font-size:1rem}
+  .crest{width:38px;height:38px;font-size:.9rem}
+  .stat-value{font-size:1.25rem}
+  .panel-head h2{font-size:1.08rem}
+  .panel-progress{margin-left:0;text-align:left;width:100%}
+}
+@media print{
+  .site-header,.sidebar,.tracker-form,.legend,.del-btn{display:none!important}
+  .layout{grid-template-columns:1fr}
+  .panel{break-inside:avoid;box-shadow:none}
+}
+</style>
 </head>
 <body>
-<div class="container">
-    <header>
-        <h1>📚 CBSE Class 10 Pre-Board Planner</h1>
-        <p>Checklist for English, Hindi, Maths, Science, SST & AI • Progress tracker with local storage</p>
-    </header>
 
-    <nav class="nav">
-        <a href="#english">English</a>
-        <a href="#hindi">Hindi</a>
-        <a href="#maths">Maths</a>
-        <a href="#science">Science</a>
-        <a href="#sst">SST</a>
-        <a href="#ai">AI</a>
-        <a href="#tests">Tests</a>
-        <a href="#tracker">📊 Progress</a>
-    </nav>
-
-    <div class="grid">
-        <!-- ENGLISH -->
-        <section class="card" id="english">
-            <h2>📘 English</h2>
-            <div class="sub">First Flight + Footprints Without Feet</div>
-
-            <div class="chapter-block">
-                <h3>First Flight – Prose</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="eng-p1"><label for="eng-p1">A Letter to God</label></li>
-                    <li><input type="checkbox" id="eng-p2"><label for="eng-p2">Nelson Mandela: Long Walk to Freedom</label></li>
-                    <li><input type="checkbox" id="eng-p3"><label for="eng-p3">Two Stories about Flying</label></li>
-                    <li><input type="checkbox" id="eng-p4"><label for="eng-p4">From the Diary of Anne Frank</label></li>
-                    <li><input type="checkbox" id="eng-p5"><label for="eng-p5">Glimpses of India</label></li>
-                    <li><input type="checkbox" id="eng-p6"><label for="eng-p6">Mijbil the Otter</label></li>
-                    <li><input type="checkbox" id="eng-p7"><label for="eng-p7">Madam Rides the Bus</label></li>
-                    <li><input type="checkbox" id="eng-p8"><label for="eng-p8">The Sermon at Benares</label></li>
-                    <li><input type="checkbox" id="eng-p9"><label for="eng-p9">The Proposal (Play)</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>First Flight – Poems</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="eng-po1"><label for="eng-po1">Dust of Snow</label></li>
-                    <li><input type="checkbox" id="eng-po2"><label for="eng-po2">Fire and Ice</label></li>
-                    <li><input type="checkbox" id="eng-po3"><label for="eng-po3">A Tiger in the Zoo</label></li>
-                    <li><input type="checkbox" id="eng-po4"><label for="eng-po4">How to Tell Wild Animals</label></li>
-                    <li><input type="checkbox" id="eng-po5"><label for="eng-po5">The Ball Poem</label></li>
-                    <li><input type="checkbox" id="eng-po6"><label for="eng-po6">Amanda!</label></li>
-                    <li><input type="checkbox" id="eng-po7"><label for="eng-po7">The Trees</label></li>
-                    <li><input type="checkbox" id="eng-po8"><label for="eng-po8">Fog</label></li>
-                    <li><input type="checkbox" id="eng-po9"><label for="eng-po9">The Tale of Custard the Dragon</label></li>
-                    <li><input type="checkbox" id="eng-po10"><label for="eng-po10">For Anne Gregory</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>Footprints Without Feet (Supplementary)</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="eng-s1"><label for="eng-s1">A Triumph of Surgery</label></li>
-                    <li><input type="checkbox" id="eng-s2"><label for="eng-s2">The Thief's Story</label></li>
-                    <li><input type="checkbox" id="eng-s3"><label for="eng-s3">The Midnight Visitor</label></li>
-                    <li><input type="checkbox" id="eng-s4"><label for="eng-s4">A Question of Trust</label></li>
-                    <li><input type="checkbox" id="eng-s5"><label for="eng-s5">Footprints Without Feet</label></li>
-                    <li><input type="checkbox" id="eng-s6"><label for="eng-s6">The Making of a Scientist</label></li>
-                    <li><input type="checkbox" id="eng-s7"><label for="eng-s7">The Necklace</label></li>
-                    <li><input type="checkbox" id="eng-s8"><label for="eng-s8">Bholi</label></li>
-                    <li><input type="checkbox" id="eng-s9"><label for="eng-s9">The Book That Saved the Earth</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>Writing & Grammar</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="eng-g1"><label for="eng-g1">Formal Letter</label></li>
-                    <li><input type="checkbox" id="eng-g2"><label for="eng-g2">Analytical Paragraph</label></li>
-                    <li><input type="checkbox" id="eng-g3"><label for="eng-g3">Tenses</label></li>
-                    <li><input type="checkbox" id="eng-g4"><label for="eng-g4">Modals</label></li>
-                    <li><input type="checkbox" id="eng-g5"><label for="eng-g5">Subject-Verb Concord</label></li>
-                    <li><input type="checkbox" id="eng-g6"><label for="eng-g6">Determiners</label></li>
-                    <li><input type="checkbox" id="eng-g7"><label for="eng-g7">Reported Speech</label></li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- HINDI -->
-        <section class="card" id="hindi">
-            <h2>📙 Hindi (Course A)</h2>
-            <div class="sub">Kshitij Part 2 + Kritika Part 2</div>
-
-            <div class="chapter-block">
-                <h3>क्षितिज भाग-2 (Kshitij)</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="hin-k1"><label for="hin-k1">पद (सूरदास)</label></li>
-                    <li><input type="checkbox" id="hin-k2"><label for="hin-k2">राम-लक्ष्मण-परशुराम संवाद (तुलसीदास)</label></li>
-                    <li><input type="checkbox" id="hin-k3"><label for="hin-k3">साखियाँ और सबद (कबीर)</label></li>
-                    <li><input type="checkbox" id="hin-k4"><label for="hin-k4">यह दंतुरित मुस्कान और फसल (नागार्जुन)</label></li>
-                    <li><input type="checkbox" id="hin-k5"><label for="hin-k5">टोपी शुक्ला (कुँवर नारायण)</label></li>
-                    <li><input type="checkbox" id="hin-k6"><label for="hin-k6">बालगोबिन भगत (हरिशंकर परसाई)</label></li>
-                    <li><input type="checkbox" id="hin-k7"><label for="hin-k7">आत्मत्राण (माखनलाल चतुर्वेदी)</label></li>
-                    <li><input type="checkbox" id="hin-k8"><label for="hin-k8">उत्साह और अट नहीं रही (रामधारी सिंह दिनकर)</label></li>
-                    <li><input type="checkbox" id="hin-k9"><label for="hin-k9">गद्य खंड – लखनवी अंदाज़</label></li>
-                    <li><input type="checkbox" id="hin-k10"><label for="hin-k10">नेताजी का चश्मा</label></li>
-                    <li><input type="checkbox" id="hin-k11"><label for="hin-k11">बालगोबिन भगत</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>कृतिका भाग-2 (Kritika)</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="hin-kr1"><label for="hin-kr1">माता का अँचल</label></li>
-                    <li><input type="checkbox" id="hin-kr2"><label for="hin-kr2">जॉर्ज पंचम की नाक</label></li>
-                    <li><input type="checkbox" id="hin-kr3"><label for="hin-kr3">साना-साना हाथ जोड़ि</label></li>
-                    <li><input type="checkbox" id="hin-kr4"><label for="hin-kr4">एही ठैयाँ झुलनी हेरानी हो रामा!</label></li>
-                    <li><input type="checkbox" id="hin-kr5"><label for="hin-kr5">मैं क्यों लिखता हूँ?</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>व्याकरण और लेखन (Grammar & Writing)</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="hin-g1"><label for="hin-g1">अपठित बोध (Unseen Passages)</label></li>
-                    <li><input type="checkbox" id="hin-g2"><label for="hin-g2">वाक्य भेद</label></li>
-                    <li><input type="checkbox" id="hin-g3"><label for="hin-g3">अलंकार</label></li>
-                    <li><input type="checkbox" id="hin-g4"><label for="hin-g4">पद परिचय</label></li>
-                    <li><input type="checkbox" id="hin-g5"><label for="hin-g5">अनुच्छेद लेखन</label></li>
-                    <li><input type="checkbox" id="hin-g6"><label for="hin-g6">पत्र लेखन</label></li>
-                    <li><input type="checkbox" id="hin-g7"><label for="hin-g7">सूचना लेखन</label></li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- MATHS -->
-        <section class="card" id="maths">
-            <h2>📐 Mathematics (Standard)</h2>
-            <div class="sub">7 Units • 80 Marks Theory</div>
-
-            <div class="chapter-block">
-                <h3>Unit I: Number Systems</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="mat-1"><label for="mat-1">Real Numbers – Fundamental Theorem of Arithmetic</label></li>
-                    <li><input type="checkbox" id="mat-2"><label for="mat-2">Irrationality proofs (√2, √3, √5)</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>Unit II: Algebra</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="mat-3"><label for="mat-3">Polynomials – Zeros & Coefficients</label></li>
-                    <li><input type="checkbox" id="mat-4"><label for="mat-4">Pair of Linear Equations – Graphical & Algebraic</label></li>
-                    <li><input type="checkbox" id="mat-5"><label for="mat-5">Quadratic Equations – Formula & Discriminant</label></li>
-                    <li><input type="checkbox" id="mat-6"><label for="mat-6">Arithmetic Progressions – nth term & Sum</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>Unit III: Coordinate Geometry</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="mat-7"><label for="mat-7">Distance Formula</label></li>
-                    <li><input type="checkbox" id="mat-8"><label for="mat-8">Section Formula</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>Unit IV: Geometry</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="mat-9"><label for="mat-9">Triangles – Similarity & BPT</label></li>
-                    <li><input type="checkbox" id="mat-10"><label for="mat-10">Circles – Tangents</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>Unit V: Trigonometry</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="mat-11"><label for="mat-11">Trig Ratios & Identities</label></li>
-                    <li><input type="checkbox" id="mat-12"><label for="mat-12">Heights & Distances</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>Unit VI: Mensuration</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="mat-13"><label for="mat-13">Areas Related to Circles</label></li>
-                    <li><input type="checkbox" id="mat-14"><label for="mat-14">Surface Areas & Volumes</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>Unit VII: Statistics & Probability</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="mat-15"><label for="mat-15">Statistics – Mean, Median, Mode</label></li>
-                    <li><input type="checkbox" id="mat-16"><label for="mat-16">Probability – Classical Definition</label></li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- SCIENCE -->
-        <section class="card" id="science">
-            <h2>🔬 Science</h2>
-            <div class="sub">5 Units • Chemistry, Biology, Physics</div>
-
-            <div class="chapter-block">
-                <h3>Chemistry (25 Marks)</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="sci-c1"><label for="sci-c1">Chemical Reactions and Equations</label></li>
-                    <li><input type="checkbox" id="sci-c2"><label for="sci-c2">Acids, Bases and Salts</label></li>
-                    <li><input type="checkbox" id="sci-c3"><label for="sci-c3">Metals and Non-metals</label></li>
-                    <li><input type="checkbox" id="sci-c4"><label for="sci-c4">Carbon and Its Compounds</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>Biology (25 + 5 Marks)</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="sci-b1"><label for="sci-b1">Life Processes</label></li>
-                    <li><input type="checkbox" id="sci-b2"><label for="sci-b2">Control and Coordination</label></li>
-                    <li><input type="checkbox" id="sci-b3"><label for="sci-b3">How Do Organisms Reproduce</label></li>
-                    <li><input type="checkbox" id="sci-b4"><label for="sci-b4">Heredity and Evolution</label></li>
-                    <li><input type="checkbox" id="sci-b5"><label for="sci-b5">Environment (Natural Resources)</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>Physics (12 + 13 Marks)</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="sci-p1"><label for="sci-p1">Light – Reflection and Refraction</label></li>
-                    <li><input type="checkbox" id="sci-p2"><label for="sci-p2">Human Eye and Colourful World</label></li>
-                    <li><input type="checkbox" id="sci-p3"><label for="sci-p3">Electricity</label></li>
-                    <li><input type="checkbox" id="sci-p4"><label for="sci-p4">Magnetic Effects of Electric Current</label></li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- SST -->
-        <section class="card" id="sst">
-            <h2>🌍 Social Science</h2>
-            <div class="sub">History • Geography • Pol Science • Economics</div>
-
-            <div class="chapter-block">
-                <h3>History (20 Marks)</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="sst-h1"><label for="sst-h1">The Rise of Nationalism in Europe</label></li>
-                    <li><input type="checkbox" id="sst-h2"><label for="sst-h2">Nationalism in India</label></li>
-                    <li><input type="checkbox" id="sst-h3"><label for="sst-h3">The Making of a Global World</label></li>
-                    <li><input type="checkbox" id="sst-h4"><label for="sst-h4">The Age of Industrialisation</label></li>
-                    <li><input type="checkbox" id="sst-h5"><label for="sst-h5">Print Culture and the Modern World</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>Geography (20 Marks)</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="sst-g1"><label for="sst-g1">Resources and Development</label></li>
-                    <li><input type="checkbox" id="sst-g2"><label for="sst-g2">Forest and Wildlife Resources</label></li>
-                    <li><input type="checkbox" id="sst-g3"><label for="sst-g3">Water Resources</label></li>
-                    <li><input type="checkbox" id="sst-g4"><label for="sst-g4">Agriculture</label></li>
-                    <li><input type="checkbox" id="sst-g5"><label for="sst-g5">Minerals and Energy Resources</label></li>
-                    <li><input type="checkbox" id="sst-g6"><label for="sst-g6">Manufacturing Industries</label></li>
-                    <li><input type="checkbox" id="sst-g7"><label for="sst-g7">Life Lines of National Economy</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>Political Science (20 Marks)</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="sst-p1"><label for="sst-p1">Power-sharing</label></li>
-                    <li><input type="checkbox" id="sst-p2"><label for="sst-p2">Federalism</label></li>
-                    <li><input type="checkbox" id="sst-p3"><label for="sst-p3">Gender, Religion and Caste</label></li>
-                    <li><input type="checkbox" id="sst-p4"><label for="sst-p4">Political Parties</label></li>
-                    <li><input type="checkbox" id="sst-p5"><label for="sst-p5">Outcomes of Democracy</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>Economics (20 Marks)</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="sst-e1"><label for="sst-e1">Development</label></li>
-                    <li><input type="checkbox" id="sst-e2"><label for="sst-e2">Sectors of Indian Economy</label></li>
-                    <li><input type="checkbox" id="sst-e3"><label for="sst-e3">Money and Credit</label></li>
-                    <li><input type="checkbox" id="sst-e4"><label for="sst-e4">Globalisation and Indian Economy</label></li>
-                    <li><input type="checkbox" id="sst-e5"><label for="sst-e5">Consumer Rights</label></li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- AI -->
-        <section class="card" id="ai">
-            <h2>🤖 Artificial Intelligence (417)</h2>
-            <div class="sub">Employability + Subject Specific Skills</div>
-
-            <div class="chapter-block">
-                <h3>Part A: Employability Skills</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="ai-e1"><label for="ai-e1">Communication Skills – II</label></li>
-                    <li><input type="checkbox" id="ai-e2"><label for="ai-e2">Self-Management Skills – II</label></li>
-                    <li><input type="checkbox" id="ai-e3"><label for="ai-e3">ICT Skills – II</label></li>
-                    <li><input type="checkbox" id="ai-e4"><label for="ai-e4">Entrepreneurial Skills – II</label></li>
-                    <li><input type="checkbox" id="ai-e5"><label for="ai-e5">Green Skills – II</label></li>
-                </ul>
-            </div>
-
-            <div class="chapter-block">
-                <h3>Part B: Subject Specific Skills</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="ai-s1"><label for="ai-s1">Unit 1: Revisiting AI Project Cycle & Ethics</label></li>
-                    <li><input type="checkbox" id="ai-s2"><label for="ai-s2">Unit 2: Advanced Concepts of Modeling in AI</label></li>
-                    <li><input type="checkbox" id="ai-s3"><label for="ai-s3">Unit 3: Evaluating Models</label></li>
-                    <li><input type="checkbox" id="ai-s4"><label for="ai-s4">Unit 4: Statistical Data (Practical)</label></li>
-                    <li><input type="checkbox" id="ai-s5"><label for="ai-s5">Unit 5: Computer Vision</label></li>
-                    <li><input type="checkbox" id="ai-s6"><label for="ai-s6">Unit 6: Natural Language Processing</label></li>
-                    <li><input type="checkbox" id="ai-s7"><label for="ai-s7">Unit 7: Advance Python (Practical)</label></li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- TEST CHECKLIST -->
-        <section class="card" id="tests">
-            <h2>📝 Test Checklist</h2>
-            <div class="sub">Use this to track practice tests & school exams</div>
-            <div class="chapter-block">
-                <h3>Full-Length Sample Papers</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="test-1"><label for="test-1">English – Sample Paper 1</label></li>
-                    <li><input type="checkbox" id="test-2"><label for="test-2">English – Sample Paper 2</label></li>
-                    <li><input type="checkbox" id="test-3"><label for="test-3">Hindi – Sample Paper 1</label></li>
-                    <li><input type="checkbox" id="test-4"><label for="test-4">Hindi – Sample Paper 2</label></li>
-                    <li><input type="checkbox" id="test-5"><label for="test-5">Maths – Sample Paper 1</label></li>
-                    <li><input type="checkbox" id="test-6"><label for="test-6">Maths – Sample Paper 2</label></li>
-                    <li><input type="checkbox" id="test-7"><label for="test-7">Science – Sample Paper 1</label></li>
-                    <li><input type="checkbox" id="test-8"><label for="test-8">Science – Sample Paper 2</label></li>
-                    <li><input type="checkbox" id="test-9"><label for="test-9">SST – Sample Paper 1</label></li>
-                    <li><input type="checkbox" id="test-10"><label for="test-10">SST – Sample Paper 2</label></li>
-                    <li><input type="checkbox" id="test-11"><label for="test-11">AI – Sample Paper 1</label></li>
-                    <li><input type="checkbox" id="test-12"><label for="test-12">AI – Sample Paper 2</label></li>
-                </ul>
-            </div>
-            <div class="chapter-block">
-                <h3>Chapter-Wise Tests</h3>
-                <ul class="checklist">
-                    <li><input type="checkbox" id="test-c1"><label for="test-c1">Maths – Trigonometry test</label></li>
-                    <li><input type="checkbox" id="test-c2"><label for="test-c2">Maths – Algebra test</label></li>
-                    <li><input type="checkbox" id="test-c3"><label for="test-c3">Science – Chemical Reactions test</label></li>
-                    <li><input type="checkbox" id="test-c4"><label for="test-c4">Science – Electricity test</label></li>
-                    <li><input type="checkbox" id="test-c5"><label for="test-c5">SST – Nationalism in India test</label></li>
-                    <li><input type="checkbox" id="test-c6"><label for="test-c6">English – Literature test</label></li>
-                </ul>
-            </div>
-        </section>
+<!-- ================= HEADER ================= -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="crest" aria-hidden="true">X</div>
+    <div class="brand">
+      <h1>CBSE Class X — Pre-Board Planner</h1>
+      <p class="sub">Session 2025–26 · English · Hindi · Mathematics · Science · Social Science · AI</p>
     </div>
+    <div class="header-progress">
+      <div class="hp-label"><span>Overall Syllabus Coverage</span><b id="hpPct">0%</b></div>
+      <div class="hp-bar"><i id="hpBar"></i></div>
+    </div>
+  </div>
+</header>
 
-    <!-- PROGRESS TRACKER -->
-    <section class="card" id="tracker">
-        <h2>📊 Progress Tracker</h2>
-        <div class="sub">Enter your test marks – they save automatically in this browser and the graph updates instantly.</div>
+<div class="layout">
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" id="sidebar">
+    <p class="side-title">Subjects</p>
+    <a class="nav-item" href="#english"   data-nav="english">English<span class="nav-bar"><i></i></span></a>
+    <a class="nav-item" href="#hindi"     data-nav="hindi">Hindi<span class="nav-bar"><i></i></span></a>
+    <a class="nav-item" href="#maths"     data-nav="maths">Mathematics<span class="nav-bar"><i></i></span></a>
+    <a class="nav-item" href="#science"   data-nav="science">Science<span class="nav-bar"><i></i></span></a>
+    <a class="nav-item" href="#sst"       data-nav="sst">Social Science<span class="nav-bar"><i></i></span></a>
+    <a class="nav-item" href="#ai"        data-nav="ai">Artificial Intelligence<span class="nav-bar"><i></i></span></a>
+    <a class="nav-item" href="#tests"     data-nav="tests">Tests &amp; Mock Papers<span class="nav-bar"><i></i></span></a>
+    <div class="side-divider"></div>
+    <a class="nav-item" href="#tracker" data-nav="tracker">📊 Progress Tracker</a>
+    <div class="side-tools">
+      <button type="button" id="btnExport">⤓ Export data</button>
+      <button type="button" id="btnImport">⤒ Import data</button>
+      <button type="button" id="btnResetChecks">↺ Reset checklists</button>
+    </div>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+  </aside>
 
-        <div class="tracker-controls">
-            <select id="subjectSelect">
-                <option value="English">English</option>
-                <option value="Hindi">Hindi</option>
-                <option value="Maths">Maths</option>
-                <option value="Science">Science</option>
-                <option value="SST">SST</option>
-                <option value="AI">AI</option>
-            </select>
-            <input type="text" id="testName" placeholder="Test name (e.g., Pre-Board 1)" maxlength="30">
-            <input type="number" id="scoreInput" placeholder="Score %" min="0" max="100">
-            <button onclick="addScore()">Add Score</button>
-            <button class="reset" onclick="resetScores()">Reset All</button>
-        </div>
+  <!-- ================= MAIN ================= -->
+  <main id="main">
 
-        <div class="chart-wrap">
-            <canvas id="scoreChart" width="800" height="300"></canvas>
-        </div>
-
-        <div class="score-list" id="scoreList">
-            <!-- Table will be injected here -->
-        </div>
+    <!-- OVERVIEW -->
+    <section class="overview" aria-label="Overview">
+      <div class="stat">
+        <div class="stat-label">Syllabus Covered</div>
+        <div class="stat-value" id="ovDone">0</div>
+        <div class="stat-sub" id="ovTotal">of 0 topics</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Tests Logged</div>
+        <div class="stat-value" id="ovTests">0</div>
+        <div class="stat-sub">scores recorded</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Average Score</div>
+        <div class="stat-value" id="ovAvg">—</div>
+        <div class="stat-sub" id="ovAvgSub">across all subjects</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Days to Pre-Board</div>
+        <div class="stat-value" id="ovDays">—</div>
+        <input type="date" id="examDate" aria-label="Pre-board exam date">
+      </div>
     </section>
 
-    <footer>
-        Syllabus aligned with CBSE 2025-26 • Data is stored only in your browser using localStorage.
-    </footer>
+    <!-- Subject panels injected here -->
+    <div id="panels"></div>
+
+    <!-- TRACKER -->
+    <section class="panel" id="tracker">
+      <div class="panel-head">
+        <div>
+          <h2>Progress Tracker</h2>
+          <p class="tag">Log test scores — saved locally in this browser, graph updates instantly</p>
+        </div>
+      </div>
+
+      <div class="tracker-form">
+        <div class="field">
+          <label for="subjectSelect">Subject</label>
+          <select id="subjectSelect">
+            <option value="english">English</option>
+            <option value="hindi">Hindi</option>
+            <option value="maths">Mathematics</option>
+            <option value="science">Science</option>
+            <option value="sst">Social Science</option>
+            <option value="ai">Artificial Intelligence</option>
+          </select>
+        </div>
+        <div class="field" style="flex:1 1 190px">
+          <label for="testName">Test name</label>
+          <input type="text" id="testName" placeholder="e.g. Pre-Board 1" maxlength="34" style="width:100%">
+        </div>
+        <div class="field">
+          <label for="scoreInput">Score (%)</label>
+          <input type="number" id="scoreInput" placeholder="0–100" min="0" max="100" step="0.5" style="width:110px">
+        </div>
+        <button class="btn btn-primary" type="button" id="btnAdd">Add Score</button>
+        <button class="btn btn-danger" type="button" id="btnResetScores">Clear All</button>
+      </div>
+
+      <div class="legend" id="legend"></div>
+
+      <div class="chart-wrap">
+        <canvas id="chart" role="img" aria-label="Line chart of test scores by subject"></canvas>
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+
+      <div class="summary" id="summary"></div>
+
+      <div class="table-wrap" id="tableWrap"></div>
+      <p class="hint">Tip: click a legend chip to show or hide that subject. Hover over a point for details.</p>
+    </section>
+  </main>
 </div>
 
+<footer>
+  Syllabus aligned with the CBSE 2025–26 curriculum. All data is stored only in your browser
+  (<code>localStorage</code>) — nothing is uploaded anywhere.
+</footer>
+
 <script>
-    // ---------- LOCAL STORAGE KEYS ----------
-    const SCORE_KEY = 'cbse10_preboard_scores';
+(function(){
+"use strict";
 
-    // ---------- CHECKBOX PERSISTENCE ----------
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(cb => {
-        const saved = localStorage.getItem('cbse10_check_' + cb.id);
-        if (saved === 'true') cb.checked = true;
-        cb.addEventListener('change', () => {
-            localStorage.setItem('cbse10_check_' + cb.id, cb.checked);
-        });
+/* =========================================================
+   1. SYLLABUS DATA  (CBSE Class X, 2025–26)
+   ========================================================= */
+const SUBJECTS = [
+  {
+    id:"english", name:"English", tag:"Language & Literature (184)",
+    color:"#1e3a5f",
+    groups:[
+      { title:"First Flight — Prose", items:[
+        "A Letter to God",
+        "Nelson Mandela: Long Walk to Freedom",
+        "Two Stories about Flying",
+        "From the Diary of Anne Frank",
+        "Glimpses of India",
+        "Mijbil the Otter",
+        "Madam Rides the Bus",
+        "The Sermon at Benares",
+        "The Proposal (Play)"
+      ]},
+      { title:"First Flight — Poems", items:[
+        "Dust of Snow",
+        "Fire and Ice",
+        "A Tiger in the Zoo",
+        "How to Tell Wild Animals",
+        "The Ball Poem",
+        "Amanda!",
+        "The Trees",
+        "Fog",
+        "The Tale of Custard the Dragon",
+        "For Anne Gregory"
+      ]},
+      { title:"Footprints Without Feet (Supplementary)", items:[
+        "A Triumph of Surgery",
+        "The Thief's Story",
+        "The Midnight Visitor",
+        "A Question of Trust",
+        "Footprints Without Feet",
+        "The Making of a Scientist",
+        "The Necklace",
+        "Bholi",
+        "The Book That Saved the Earth"
+      ]},
+      { title:"Writing Skills & Grammar", items:[
+        "Formal Letter",
+        "Analytical Paragraph",
+        "Tenses",
+        "Modals",
+        "Subject–Verb Concord",
+        "Determiners",
+        "Reported Speech"
+      ]}
+    ]
+  },
+  {
+    id:"hindi", name:"Hindi", tag:"Course A — Kshitij & Kritika",
+    color:"#7b2d26",
+    groups:[
+      { title:"क्षितिज भाग-2 — काव्य खंड", items:[
+        "सूरदास — पद",
+        "तुलसीदास — राम-लक्ष्मण-परशुराम संवाद",
+        "कबीर — साखियाँ एवं सबद",
+        "जयशंकर प्रसाद — आत्मकथ्य",
+        "निराला — उत्साह, अट नहीं रही है",
+        "नागार्जुन — यह दंतुरित मुस्कान, फसल",
+        "गिरिजाकुमार माथुर — छाया मत छूना",
+        "ऋतुराज — कन्यादान",
+        "मंगलेश डबराल — संगतकार"
+      ]},
+      { title:"क्षितिज भाग-2 — गद्य खंड", items:[
+        "स्वयं प्रकाश — नेताजी का चश्मा",
+        "रामवृक्ष बेनीपुरी — बालगोबिन भगत",
+        "यशपाल — लखनवी अंदाज़",
+        "सर्वेश्वर दयाल सक्सेना — मानवीय करुणा की दिव्य चमक",
+        "मन्नू भंडारी — एक कहानी यह भी",
+        "महावीरप्रसाद द्विवेदी — स्त्री शिक्षा के विरोधी कुतर्कों का खंडन",
+        "यतीश कुमार — नौबतखाने में इबादत",
+        "भदंत आनंद कौसल्यायन — संस्कृति"
+      ]},
+      { title:"कृतिका भाग-2", items:[
+        "माता का अँचल",
+        "जॉर्ज पंचम की नाक",
+        "साना-साना हाथ जोड़ि",
+        "एही ठैयाँ झुलनी हेरानी हो रामा!",
+        "मैं क्यों लिखता हूँ?"
+      ]},
+      { title:"व्याकरण एवं रचनात्मक लेखन", items:[
+        "अपठित बोध",
+        "वाक्य भेद",
+        "अलंकार",
+        "पद परिचय",
+        "समास",
+        "मुहावरे एवं लोकोक्तियाँ",
+        "अनुच्छेद लेखन",
+        "पत्र लेखन",
+        "सूचना एवं विज्ञापन लेखन"
+      ]}
+    ]
+  },
+  {
+    id:"maths", name:"Mathematics", tag:"Standard (041) — 80 Marks",
+    color:"#2f6b46",
+    groups:[
+      { title:"Unit I — Number Systems", items:[
+        "Real Numbers — Fundamental Theorem of Arithmetic",
+        "Irrationality proofs (√2, √3, √5)",
+        "HCF & LCM applications"
+      ]},
+      { title:"Unit II — Algebra", items:[
+        "Polynomials — zeros & coefficients",
+        "Pair of Linear Equations — graphical method",
+        "Pair of Linear Equations — algebraic methods",
+        "Quadratic Equations — factorisation & formula",
+        "Quadratic Equations — discriminant & nature of roots",
+        "Arithmetic Progressions — nth term",
+        "Arithmetic Progressions — sum of n terms"
+      ]},
+      { title:"Unit III — Coordinate Geometry", items:[
+        "Distance Formula",
+        "Section Formula",
+        "Area of a Triangle (coordinate)"
+      ]},
+      { title:"Unit IV — Geometry", items:[
+        "Triangles — similarity criteria",
+        "Triangles — Basic Proportionality Theorem",
+        "Circles — tangents & number of tangents"
+      ]},
+      { title:"Unit V — Trigonometry", items:[
+        "Trigonometric Ratios",
+        "Trigonometric Identities",
+        "Heights & Distances"
+      ]},
+      { title:"Unit VI — Mensuration", items:[
+        "Areas Related to Circles",
+        "Surface Areas & Volumes (combinations)"
+      ]},
+      { title:"Unit VII — Statistics & Probability", items:[
+        "Statistics — mean of grouped data",
+        "Statistics — median & mode",
+        "Probability — classical definition"
+      ]}
+    ]
+  },
+  {
+    id:"science", name:"Science", tag:"(086) — Chemistry · Biology · Physics",
+    color:"#4a3b78",
+    groups:[
+      { title:"Chemistry", items:[
+        "Chemical Reactions and Equations",
+        "Acids, Bases and Salts",
+        "Metals and Non-metals",
+        "Carbon and its Compounds"
+      ]},
+      { title:"Biology", items:[
+        "Life Processes",
+        "Control and Coordination",
+        "How do Organisms Reproduce?",
+        "Heredity",
+        "Our Environment"
+      ]},
+      { title:"Physics", items:[
+        "Light — Reflection and Refraction",
+        "The Human Eye and the Colourful World",
+        "Electricity",
+        "Magnetic Effects of Electric Current"
+      ]}
+    ]
+  },
+  {
+    id:"sst", name:"Social Science", tag:"(087) — History · Geography · Civics · Economics",
+    color:"#a15c1a",
+    groups:[
+      { title:"History — India and the Contemporary World II", items:[
+        "The Rise of Nationalism in Europe",
+        "Nationalism in India",
+        "The Making of a Global World",
+        "The Age of Industrialisation",
+        "Print Culture and the Modern World"
+      ]},
+      { title:"Geography — Contemporary India II", items:[
+        "Resources and Development",
+        "Forest and Wildlife Resources",
+        "Water Resources",
+        "Agriculture",
+        "Minerals and Energy Resources",
+        "Manufacturing Industries",
+        "Lifelines of National Economy"
+      ]},
+      { title:"Political Science — Democratic Politics II", items:[
+        "Power Sharing",
+        "Federalism",
+        "Gender, Religion and Caste",
+        "Political Parties",
+        "Outcomes of Democracy"
+      ]},
+      { title:"Economics — Understanding Economic Development", items:[
+        "Development",
+        "Sectors of the Indian Economy",
+        "Money and Credit",
+        "Globalisation and the Indian Economy",
+        "Consumer Rights"
+      ]}
+    ]
+  },
+  {
+    id:"ai", name:"Artificial Intelligence", tag:"(417) — Employability & Subject Skills",
+    color:"#17607a",
+    groups:[
+      { title:"Part A — Employability Skills", items:[
+        "Communication Skills – II",
+        "Self-Management Skills – II",
+        "ICT Skills – II",
+        "Entrepreneurial Skills – II",
+        "Green Skills – II"
+      ]},
+      { title:"Part B — Subject Specific Skills", items:[
+        "Unit 1: Revisiting AI Project Cycle",
+        "Unit 2: Advanced Concepts of Modelling in AI",
+        "Unit 3: Evaluating Models",
+        "Unit 4: Statistical Data",
+        "Unit 5: Computer Vision",
+        "Unit 6: Natural Language Processing",
+        "Unit 7: Advance Python"
+      ]}
+    ]
+  },
+  {
+    id:"tests", name:"Tests & Mock Papers", tag:"Practice, sample papers and school assessments",
+    color:"#5c5c6b",
+    groups:[
+      { title:"Full-Length Sample Papers", items:[
+        "English — Sample Paper 1",
+        "English — Sample Paper 2",
+        "Hindi — Sample Paper 1",
+        "Hindi — Sample Paper 2",
+        "Mathematics — Sample Paper 1",
+        "Mathematics — Sample Paper 2",
+        "Science — Sample Paper 1",
+        "Science — Sample Paper 2",
+        "Social Science — Sample Paper 1",
+        "Social Science — Sample Paper 2",
+        "AI — Sample Paper 1",
+        "AI — Sample Paper 2"
+      ]},
+      { title:"Chapter-Wise Tests", items:[
+        "Maths — Trigonometry test",
+        "Maths — Algebra test",
+        "Maths — Mensuration test",
+        "Science — Chemical Reactions test",
+        "Science — Electricity test",
+        "Science — Life Processes test",
+        "SST — Nationalism in India test",
+        "SST — Economics full test",
+        "English — Literature test",
+        "English — Writing skills test",
+        "Hindi — व्याकरण test",
+        "AI — Python practical test"
+      ]}
+    ]
+  }
+];
+
+/* Map of subject id → meta, used by the tracker */
+const SUB_META = {};
+SUBJECTS.forEach(s => SUB_META[s.id] = { name:s.name, color:s.color });
+
+/* =========================================================
+   2. STORAGE HELPERS
+   ========================================================= */
+const LS_CHECKS = "cbse10:checks:v2";
+const LS_SCORES = "cbse10:scores:v2";
+const LS_DATE   = "cbse10:examdate:v2";
+
+function readJSON(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  }catch(e){ return fallback; }
+}
+function writeJSON(key, val){
+  try{ localStorage.setItem(key, JSON.stringify(val)); }
+  catch(e){ console.warn("Storage unavailable", e); }
+}
+
+let checks = readJSON(LS_CHECKS, {});      // { "english::A Letter to God": true }
+let scores = readJSON(LS_SCORES, []);      // [{id, subject, name, score, ts}]
+
+/* =========================================================
+   3. RENDER SUBJECT PANELS
+   ========================================================= */
+const esc = s => String(s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;");
+
+function keyFor(subId, item){ return subId + "::" + item; }
+
+function renderPanels(){
+  const host = document.getElementById("panels");
+  host.innerHTML = SUBJECTS.map(sub => {
+    const total = sub.groups.reduce((a,g) => a + g.items.length, 0);
+    const groupsHTML = sub.groups.map((g, gi) => {
+      const itemsHTML = g.items.map(item => {
+        const key = keyFor(sub.id, item);
+        const checked = checks[key] ? " checked" : "";
+        return '<li><label class="check">' +
+                 '<input type="checkbox" data-key="' + esc(key) + '" data-sub="' + sub.id + '"' + checked + '>' +
+                 '<span class="box" aria-hidden="true"></span>' +
+                 '<span class="txt">' + esc(item) + '</span>' +
+               '</label></li>';
+      }).join("");
+      return '<details class="group" open>' +
+               '<summary>' + esc(g.title) +
+                 '<span class="count" data-count="' + sub.id + '-' + gi + '">0/' + g.items.length + '</span>' +
+               '</summary>' +
+               '<ul class="checks">' + itemsHTML + '</ul>' +
+             '</details>';
+    }).join("");
+
+    return '<section class="panel" id="' + sub.id + '">' +
+      '<div class="panel-head">' +
+        '<div><h2>' + esc(sub.name) + '</h2><p class="tag">' + esc(sub.tag) + '</p></div>' +
+        '<div class="panel-progress">' +
+          '<span class="pct" data-pct="' + sub.id + '">0%</span>' +
+          '<span class="of" data-of="' + sub.id + '">0 / ' + total + '</span>' +
+          '<div class="bar"><i data-bar="' + sub.id + '"></i></div>' +
+        '</div>' +
+      '</div>' + groupsHTML +
+    '</section>';
+  }).join("");
+
+  // Attach change listeners
+  host.querySelectorAll('input[type="checkbox"][data-key]').forEach(cb => {
+    cb.addEventListener("change", () => {
+      if(cb.checked) checks[cb.dataset.key] = true;
+      else delete checks[cb.dataset.key];
+      writeJSON(LS_CHECKS, checks);
+      updateProgress();
+    });
+  });
+}
+
+/* =========================================================
+   4. PROGRESS CALCULATION
+   ========================================================= */
+function updateProgress(){
+  let grandDone = 0, grandTotal = 0;
+
+  SUBJECTS.forEach(sub => {
+    let done = 0, total = 0;
+
+    sub.groups.forEach((g, gi) => {
+      let gDone = 0;
+      g.items.forEach(item => {
+        if(checks[keyFor(sub.id, item)]) gDone++;
+      });
+      done += gDone; total += g.items.length;
+      const cnt = document.querySelector('[data-count="' + sub.id + '-' + gi + '"]');
+      if(cnt) cnt.textContent = gDone + "/" + g.items.length;
     });
 
-    // ---------- SCORE DATA ----------
-    let scores = JSON.parse(localStorage.getItem(SCORE_KEY)) || [];
+    grandDone += done; grandTotal += total;
 
-    // ---------- ADD SCORE ----------
-    function addScore() {
-        const subject = document.getElementById('subjectSelect').value;
-        const testName = document.getElementById('testName').value.trim() || 'Test';
-        const score = parseFloat(document.getElementById('scoreInput').value);
+    const pct = total ? Math.round(done / total * 100) : 0;
+    const pctEl = document.querySelector('[data-pct="' + sub.id + '"]');
+    const ofEl  = document.querySelector('[data-of="' + sub.id + '"]');
+    const barEl = document.querySelector('[data-bar="' + sub.id + '"]');
+    const navBar = document.querySelector('[data-nav="' + sub.id + '"] .nav-bar i');
 
-        if (isNaN(score) || score < 0 || score > 100) {
-            alert('Please enter a valid score between 0 and 100.');
-            return;
-        }
+    if(pctEl) pctEl.textContent = pct + "%";
+    if(ofEl)  ofEl.textContent  = done + " / " + total;
+    if(barEl) barEl.style.width = pct + "%";
+    if(navBar) navBar.style.width = pct + "%";
+  });
 
-        scores.push({
-            subject,
-            testName,
-            score,
-            timestamp: new Date().toISOString()
-        });
+  const overall = grandTotal ? Math.round(grandDone / grandTotal * 100) : 0;
+  document.getElementById("hpPct").textContent = overall + "%";
+  document.getElementById("hpBar").style.width = overall + "%";
+  document.getElementById("ovDone").textContent = grandDone;
+  document.getElementById("ovTotal").textContent = "of " + grandTotal + " topics";
 
-        localStorage.setItem(SCORE_KEY, JSON.stringify(scores));
-        document.getElementById('testName').value = '';
-        document.getElementById('scoreInput').value = '';
-        renderAll();
-    }
+  updateOverviewScores();
+}
 
-    // ---------- RESET SCORES ----------
-    function resetScores() {
-        if (!confirm('Delete all saved scores? This cannot be undone.')) return;
-        scores = [];
-        localStorage.removeItem(SCORE_KEY);
-        renderAll();
-    }
+/* =========================================================
+   5. TRACKER — SCORES
+   ========================================================= */
+const chart = document.getElementById("chart");
+const ctx = chart.getContext("2d");
+const tooltip = document.getElementById("tooltip");
+const chartWrap = chart.parentElement;
 
-    // ---------- RENDER EVERYTHING ----------
-    function renderAll() {
-        renderChart();
-        renderTable();
-    }
+const visible = {};
+Object.keys(SUB_META).forEach(id => visible[id] = true);
 
-    // ---------- RENDER CHART ----------
-    function renderChart() {
-        const canvas = document.getElementById('scoreChart');
-        const ctx = canvas.getContext('2d');
-        const W = canvas.width;
-        const H = canvas.height;
+let hits = [];   // hoverable points in CSS pixels
 
-        ctx.clearRect(0, 0, W, H);
+function addScore(){
+  const subject = document.getElementById("subjectSelect").value;
+  const nameEl = document.getElementById("testName");
+  const scoreEl = document.getElementById("scoreInput");
+  const name = nameEl.value.trim() || "Test";
+  const score = parseFloat(scoreEl.value);
 
-        if (scores.length === 0) {
-            ctx.fillStyle = '#94a3b8';
-            ctx.font = '16px system-ui, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('No scores yet. Add a test score above to see the graph.', W / 2, H / 2);
-            return;
-        }
+  if(!isFinite(score) || score < 0 || score > 100){
+    scoreEl.focus();
+    scoreEl.style.borderColor = "#b23b32";
+    setTimeout(() => scoreEl.style.borderColor = "", 1200);
+    return;
+  }
 
-        const padding = { top: 30, right: 30, bottom: 50, left: 50 };
-        const chartW = W - padding.left - padding.right;
-        const chartH = H - padding.top - padding.bottom;
+  scores.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    subject,
+    name,
+    score: Math.round(score * 10) / 10,
+    ts: Date.now()
+  });
+  writeJSON(LS_SCORES, scores);
 
-        // Y-axis 0 to 100
-        const yMin = 0, yMax = 100;
+  nameEl.value = "";
+  scoreEl.value = "";
+  nameEl.focus();
+  renderTracker();
+  updateOverviewScores();
+}
 
-        // Group by subject
-        const subjects = ['English', 'Hindi', 'Maths', 'Science', 'SST', 'AI'];
-        const colors = {
-            English: '#2563eb',
-            Hindi: '#dc2626',
-            Maths: '#16a34a',
-            Science: '#9333ea',
-            SST: '#ea580c',
-            AI: '#0891b2'
-        };
+function deleteScore(id){
+  scores = scores.filter(s => s.id !== id);
+  writeJSON(LS_SCORES, scores);
+  renderTracker();
+  updateOverviewScores();
+}
 
-        // X-axis positions
-        const maxPerSubject = Math.max(...subjects.map(s => scores.filter(sc => sc.subject === s).length), 1);
-        const totalSlots = subjects.length * maxPerSubject;
+function clearScores(){
+  if(scores.length === 0) return;
+  if(!confirm("Delete all saved test scores? This cannot be undone.")) return;
+  scores = [];
+  writeJSON(LS_SCORES, scores);
+  renderTracker();
+  updateOverviewScores();
+}
 
-        // Draw grid
-        ctx.strokeStyle = '#e2e8f0';
-        ctx.lineWidth = 1;
-        for (let i = 0; i <= 5; i++) {
-            const y = padding.top + (chartH * i / 5);
-            ctx.beginPath();
-            ctx.moveTo(padding.left, y);
-            ctx.lineTo(W - padding.right, y);
-            ctx.stroke();
-            ctx.fillStyle = '#64748b';
-            ctx.font = '11px system-ui';
-            ctx.textAlign = 'right';
-            ctx.fillText(String(100 - i * 20), padding.left - 6, y + 4);
-        }
+/* ---------- Legend ---------- */
+function renderLegend(){
+  const el = document.getElementById("legend");
+  el.innerHTML = Object.keys(SUB_META).map(id => {
+    const m = SUB_META[id];
+    const off = visible[id] ? "" : " off";
+    return '<button type="button" class="legend-btn' + off + '" data-legend="' + id + '" ' +
+           'aria-pressed="' + (visible[id] ? "true" : "false") + '">' +
+             '<i style="background:' + m.color + '"></i>' + esc(m.name) +
+           '</button>';
+  }).join("");
 
-        // Draw lines per subject
-        subjects.forEach(sub => {
-            const subScores = scores.filter(sc => sc.subject === sub);
-            if (subScores.length === 0) return;
-
-            const pts = subScores.map((sc, i) => {
-                const x = padding.left + (chartW / (totalSlots - 1 || 1)) * (subjects.indexOf(sub) * maxPerSubject + i);
-                const y = padding.top + chartH * (1 - (sc.score - yMin) / (yMax - yMin));
-                return { x, y, score: sc.score, testName: sc.testName };
-            });
-
-            // Line
-            ctx.strokeStyle = colors[sub] || '#2563eb';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            pts.forEach((p, i) => {
-                if (i === 0) ctx.moveTo(p.x, p.y);
-                else ctx.lineTo(p.x, p.y);
-            });
-            ctx.stroke();
-
-            // Points
-            pts.forEach(p => {
-                ctx.fillStyle = colors[sub] || '#2563eb';
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#1e293b';
-                ctx.font = '10px system-ui';
-                ctx.textAlign = 'center';
-                ctx.fillText(p.score + '%', p.x, p.y - 10);
-            });
-        });
-
-        // X-axis labels (subject names)
-        ctx.fillStyle = '#64748b';
-        ctx.font = '11px system-ui';
-        ctx.textAlign = 'center';
-        subjects.forEach((sub, i) => {
-            const x = padding.left + (chartW / (totalSlots - 1 || 1)) * (i * maxPerSubject + (maxPerSubject - 1) / 2);
-            ctx.fillText(sub, x, H - 15);
-        });
-
-        // Legend
-        let lx = padding.left;
-        const ly = H - 5;
-        ctx.font = '10px system-ui';
-        subjects.forEach(sub => {
-            ctx.fillStyle = colors[sub];
-            ctx.fillRect(lx, ly - 8, 8, 8);
-            ctx.fillStyle = '#64748b';
-            ctx.textAlign = 'left';
-            ctx.fillText(sub, lx + 12, ly);
-            lx += 70;
-        });
-    }
-
-    // ---------- RENDER TABLE ----------
-    function renderTable() {
-        const container = document.getElementById('scoreList');
-        if (scores.length === 0) {
-            container.innerHTML = '<div class="empty-note">No scores saved yet. Add your first test score above.</div>';
-            return;
-        }
-
-        // Sort by timestamp (newest first)
-        const sorted = [...scores].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-        let html = '<table><thead><tr><th>Subject</th><th>Test</th><th>Score</th><th>Date</th></tr></thead><tbody>';
-        sorted.forEach(sc => {
-            const d = new Date(sc.timestamp);
-            const dateStr = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
-            html += `<tr>
-                <td><span class="badge">${sc.subject}</span></td>
-                <td>${escapeHtml(sc.testName)}</td>
-                <td><strong>${sc.score}%</strong></td>
-                <td>${dateStr}</td>
-            </tr>`;
-        });
-        html += '</tbody></table>';
-        container.innerHTML = html;
-    }
-
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    // ---------- INITIAL RENDER ----------
-    renderAll();
-
-    // Redraw chart if window resizes (canvas is fixed width, but keep it crisp)
-    window.addEventListener('resize', () => {
-        const canvas = document.getElementById('scoreChart');
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = 800;
-        canvas.height = 300;
-        renderChart();
+  el.querySelectorAll("[data-legend]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.legend;
+      visible[id] = !visible[id];
+      renderLegend();
+      drawChart();
     });
+  });
+}
+
+/* ---------- Chart drawing ---------- */
+function drawChart(hoverIdx){
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = Math.max(chartWrap.clientWidth - 12, 280);
+  const cssH = chart.clientHeight || 340;
+
+  chart.width  = Math.floor(cssW * dpr);
+  chart.height = Math.floor(cssH * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssW, cssH);
+
+  hits = [];
+
+  const pad = { top: 18, right: 18, bottom: 34, left: 42 };
+  const plotW = cssW - pad.left - pad.right;
+  const plotH = cssH - pad.top - pad.bottom;
+
+  const activeSubs = Object.keys(SUB_META).filter(id => visible[id]);
+  const dataBySub = {};
+  let maxCount = 0;
+
+  activeSubs.forEach(id => {
+    const arr = scores.filter(s => s.subject === id).sort((a,b) => a.ts - b.ts);
+    dataBySub[id] = arr;
+    if(arr.length > maxCount) maxCount = arr.length;
+  });
+
+  /* ---- grid + y labels ---- */
+  ctx.font = "11px system-ui, sans-serif";
+  ctx.textAlign = "right";
+  ctx.textBaseline = "middle";
+
+  for(let i = 0; i <= 5; i++){
+    const val = 100 - i * 20;
+    const y = pad.top + (plotH * i) / 5;
+    ctx.strokeStyle = i === 5 ? "#d8cfba" : "#eee8da";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(pad.left + plotW, y);
+    ctx.stroke();
+
+    ctx.fillStyle = "#9a9484";
+    ctx.fillText(val, pad.left - 8, y);
+  }
+
+  /* ---- empty state ---- */
+  if(maxCount === 0){
+    ctx.fillStyle = "#a8a294";
+    ctx.textAlign = "center";
+    ctx.font = "14px " + getComputedStyle(document.body).fontFamily;
+    ctx.fillText("No scores yet — add your first test above to see the graph.", cssW / 2, pad.top + plotH / 2);
+    return;
+  }
+
+  const xPos = i => maxCount === 1
+    ? pad.left + plotW / 2
+    : pad.left + (plotW * i) / (maxCount - 1);
+  const yPos = v => pad.top + plotH * (1 - v / 100);
+
+  /* ---- x labels ---- */
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#9a9484";
+  ctx.font = "10.5px system-ui, sans-serif";
+  for(let i = 0; i < maxCount; i++){
+    ctx.fillText("T" + (i + 1), xPos(i), pad.top + plotH + 16);
+  }
+  ctx.fillStyle = "#8a8577";
+  ctx.font = "10px system-ui, sans-serif";
+  ctx.fillText("Test sequence", pad.left + plotW / 2, cssH - 4);
+
+  /* ---- lines per subject ---- */
+  activeSubs.forEach(id => {
+    const arr = dataBySub[id];
+    if(arr.length === 0) return;
+    const color = SUB_META[id].color;
+
+    const pts = arr.map((s, i) => ({ x: xPos(i), y: yPos(s.score), s }));
+
+    // line
+    if(pts.length > 1){
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+      ctx.stroke();
+    }
+
+    // points
+    pts.forEach(p => {
+      const idx = hits.length;
+      hits.push({ x: p.x, y: p.y, subject: id, name: p.s.name, score: p.s.score });
+
+      if(idx === hoverIdx){
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 9, 0, Math.PI * 2);
+        ctx.fillStyle = color + "22";
+        ctx.fill();
+      }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = "#fff";
+      ctx.stroke();
+    });
+  });
+}
+
+/* ---------- Hover ---------- */
+chart.addEventListener("mousemove", e => {
+  const rect = chart.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  let best = -1, bestDist = 14 * 14;
+  hits.forEach((h, i) => {
+    const d = (h.x - mx) ** 2 + (h.y - my) ** 2;
+    if(d < bestDist){ bestDist = d; best = i; }
+  });
+
+  if(best >= 0){
+    const h = hits[best];
+    const m = SUB_META[h.subject];
+    tooltip.innerHTML = '<b>' + esc(m.name) + '</b> · ' + esc(h.name) +
+                        '<br>Score: <b>' + h.score + '%</b>';
+    tooltip.classList.add("show");
+
+    const wrapRect = chartWrap.getBoundingClientRect();
+    let left = rect.left - wrapRect.left + h.x + 14;
+    let top  = rect.top  - wrapRect.top  + h.y - 12;
+
+    // keep inside
+    const tw = tooltip.offsetWidth;
+    if(left + tw > chartWrap.clientWidth - 8) left = rect.left - wrapRect.left + h.x - tw - 14;
+    if(top < 4) top = 4;
+
+    tooltip.style.left = left + "px";
+    tooltip.style.top  = top + "px";
+
+    drawChart(best);
+  }else{
+    tooltip.classList.remove("show");
+    drawChart(-1);
+  }
+});
+chart.addEventListener("mouseleave", () => {
+  tooltip.classList.remove("show");
+  drawChart(-1);
+});
+
+/* ---------- Summary cards ---------- */
+function renderSummary(){
+  const el = document.getElementById("summary");
+  el.innerHTML = Object.keys(SUB_META).map(id => {
+    const m = SUB_META[id];
+    const arr = scores.filter(s => s.subject === id);
+    const avg = arr.length ? Math.round(arr.reduce((a,s) => a + s.score, 0) / arr.length) : null;
+    const best = arr.length ? Math.max(...arr.map(s => s.score)) : null;
+
+    return '<div class="sum-card">' +
+      '<div class="sname"><i style="background:' + m.color + '"></i>' + esc(m.name) + '</div>' +
+      '<div class="savg">' + (avg === null ? "—" : avg + "%") + '</div>' +
+      '<div class="smeta">' + (arr.length
+          ? arr.length + ' test' + (arr.length > 1 ? 's' : '') + ' · best ' + best + '%'
+          : 'no tests logged') + '</div>' +
+      '<div class="bar"><i style="width:' + (avg || 0) + '%;background:' + m.color + '"></i></div>' +
+    '</div>';
+  }).join("");
+}
+
+/* ---------- Score table ---------- */
+function renderTable(){
+  const el = document.getElementById("tableWrap");
+
+  if(scores.length === 0){
+    el.innerHTML = '<div class="empty-note">No scores recorded yet. Add a test score above to begin tracking.</div>';
+    return;
+  }
+
+  const sorted = [...scores].sort((a,b) => b.ts - a.ts);
+  const rows = sorted.map(s => {
+    const m = SUB_META[s.subject] || { name:s.subject, color:"#888" };
+    const d = new Date(s.ts).toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"2-digit" });
+    return '<tr>' +
+      '<td><span class="pill"><i style="background:' + m.color + '"></i>' + esc(m.name) + '</span></td>' +
+      '<td>' + esc(s.name) + '</td>' +
+      '<td class="score-cell">' + s.score + '%</td>' +
+      '<td style="color:#8a8577">' + d + '</td>' +
+      '<td style="text-align:right"><button class="del-btn" type="button" data-del="' + s.id + '" title="Delete entry" aria-label="Delete entry">✕</button></td>' +
+    '</tr>';
+  }).join("");
+
+  el.innerHTML = '<table><thead><tr>' +
+      '<th>Subject</th><th>Test</th><th>Score</th><th>Date</th><th></th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>';
+
+  el.querySelectorAll("[data-del]").forEach(btn => {
+    btn.addEventListener("click", () => deleteScore(btn.dataset.del));
+  });
+}
+
+/* ---------- Overview score stats ---------- */
+function updateOverviewScores(){
+  document.getElementById("ovTests").textContent = scores.length;
+  const avgEl = document.getElementById("ovAvg");
+  const subEl = document.getElementById("ovAvgSub");
+
+  if(scores.length === 0){
+    avgEl.textContent = "—";
+    subEl.textContent = "across all subjects";
+  }else{
+    const avg = Math.round(scores.reduce((a,s) => a + s.score, 0) / scores.length);
+    avgEl.textContent = avg + "%";
+    subEl.textContent = "across " + scores.length + " test" + (scores.length > 1 ? "s" : "");
+  }
+}
+
+/* ---------- Render all tracker parts ---------- */
+function renderTracker(){
+  renderLegend();
+  renderSummary();
+  renderTable();
+  requestAnimationFrame(() => drawChart());
+}
+
+/* =========================================================
+   6. COUNTDOWN
+   ========================================================= */
+const dateInput = document.getElementById("examDate");
+
+function initDate(){
+  let saved = localStorage.getItem(LS_DATE);
+  if(!saved){
+    const d = new Date();
+    d.setDate(d.getDate() + 15);
+    saved = d.toISOString().slice(0, 10);
+    localStorage.setItem(LS_DATE, saved);
+  }
+  dateInput.value = saved;
+  updateCountdown();
+}
+
+function updateCountdown(){
+  const val = dateInput.value;
+  if(!val){ document.getElementById("ovDays").textContent = "—"; return; }
+  localStorage.setItem(LS_DATE, val);
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(val + "T00:00:00");
+  const diff = Math.round((target - today) / 86400000);
+  const el = document.getElementById("ovDays");
+
+  if(diff > 1) el.textContent = diff + " days";
+  else if(diff === 1) el.textContent = "Tomorrow";
+  else if(diff === 0) el.textContent = "Today";
+  else el.textContent = Math.abs(diff) + " days ago";
+}
+
+dateInput.addEventListener("change", updateCountdown);
+
+/* =========================================================
+   7. EXPORT / IMPORT / RESET
+   ========================================================= */
+document.getElementById("btnExport").addEventListener("click", () => {
+  const payload = {
+    app: "cbse10-preboard-planner",
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    checks,
+    scores,
+    examDate: localStorage.getItem(LS_DATE)
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = "preboard-planner-backup-" + stamp + ".json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById("btnImport").addEventListener("click", () => {
+  document.getElementById("importFile").click();
+});
+
+document.getElementById("importFile").addEventListener("change", e => {
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const data = JSON.parse(reader.result);
+      if(!data || typeof data !== "object") throw new Error("Invalid file");
+
+      if(!confirm("Replace your current checklists and scores with this backup?")) return;
+
+      checks = (data.checks && typeof data.checks === "object") ? data.checks : {};
+      scores = Array.isArray(data.scores) ? data.scores : [];
+
+      writeJSON(LS_CHECKS, checks);
+      writeJSON(LS_SCORES, scores);
+
+      if(data.examDate){
+        localStorage.setItem(LS_DATE, data.examDate);
+        dateInput.value = data.examDate;
+        updateCountdown();
+      }
+
+      rebuildAll();
+      alert("Backup restored successfully.");
+    }catch(err){
+      alert("Could not read this file. Please choose a valid planner backup (.json).");
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+
+document.getElementById("btnResetChecks").addEventListener("click", () => {
+  const any = Object.keys(checks).length > 0;
+  if(!any){ alert("No checkboxes are ticked yet."); return; }
+  if(!confirm("Uncheck every topic in all subjects?")) return;
+  checks = {};
+  writeJSON(LS_CHECKS, checks);
+  document.querySelectorAll('input[type="checkbox"][data-key]').forEach(cb => cb.checked = false);
+  updateProgress();
+});
+
+/* =========================================================
+   8. SEARCH (bonus convenience — header-free, keyboard "/")
+   ========================================================= */
+// Lightweight filter: press "/" to focus, Esc to clear.
+const searchInput = document.createElement("input");
+searchInput.type = "search";
+searchInput.placeholder = "Filter topics…  (press /)";
+searchInput.setAttribute("aria-label", "Filter topics");
+searchInput.style.cssText =
+  "width:100%;max-width:320px;margin:0 0 18px;padding:8px 12px;font:inherit;font-size:.85rem;" +
+  "border:1px solid var(--line-strong);border-radius:6px;background:#fff;color:var(--ink);" +
+  "outline:none;display:block";
+document.getElementById("main").prepend(searchInput);
+
+searchInput.addEventListener("input", () => {
+  const q = searchInput.value.trim().toLowerCase();
+
+  document.querySelectorAll(".panel .group").forEach(group => {
+    let visibleItems = 0;
+    group.querySelectorAll("li").forEach(li => {
+      const match = !q || li.textContent.toLowerCase().includes(q);
+      li.hidden = !match;
+      if(match) visibleItems++;
+    });
+    group.hidden = (q !== "" && visibleItems === 0);
+    if(q) group.open = true;
+  });
+});
+
+searchInput.addEventListener("keydown", e => {
+  if(e.key === "Escape"){
+    searchInput.value = "";
+    searchInput.dispatchEvent(new Event("input"));
+    searchInput.blur();
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if(e.key === "/" && document.activeElement.tagName !== "INPUT" &&
+     document.activeElement.tagName !== "SELECT" && document.activeElement.tagName !== "TEXTAREA"){
+    e.preventDefault();
+    searchInput.focus();
+  }
+});
+
+/* =========================================================
+   9. SCROLLSPY
+   ========================================================= */
+function initScrollSpy(){
+  const navLinks = Array.from(document.querySelectorAll(".nav-item[data-nav]"));
+  const sections = navLinks
+    .map(a => document.getElementById(a.dataset.nav))
+    .filter(Boolean);
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        navLinks.forEach(a => a.classList.toggle("active", a.dataset.nav === entry.target.id));
+      }
+    });
+  }, { rootMargin: "-25% 0px -60% 0px", threshold: 0 });
+
+  sections.forEach(s => obs.observe(s));
+}
+
+/* =========================================================
+   10. RESIZE HANDLING
+   ========================================================= */
+let rafId = null;
+const ro = new ResizeObserver(() => {
+  if(rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(() => drawChart());
+});
+ro.observe(chartWrap);
+
+window.addEventListener("resize", () => {
+  if(rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(() => drawChart());
+});
+
+/* =========================================================
+   11. INIT
+   ========================================================= */
+function rebuildAll(){
+  renderPanels();
+  updateProgress();
+  renderTracker();
+}
+
+document.getElementById("btnAdd").addEventListener("click", addScore);
+document.getElementById("btnResetScores").addEventListener("click", clearScores);
+
+["testName", "scoreInput"].forEach(id => {
+  document.getElementById(id).addEventListener("keydown", e => {
+    if(e.key === "Enter"){ e.preventDefault(); addScore(); }
+  });
+});
+
+rebuildAll();
+initDate();
+initScrollSpy();
+
+// Ensure chart draws after fonts/layout settle
+requestAnimationFrame(() => drawChart());
+
+})();
 </script>
 </body>
 </html>
